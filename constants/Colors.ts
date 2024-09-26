@@ -6,6 +6,11 @@
 const tintColorLight = '#0a7ea4';
 const tintColorDark = '#fff';
 
+const pink = '#FD47B7';
+const green = '#145E2F';
+const white = '#FFFFF';
+
+
 export const Colors = {
   light: {
     text: '#11181C',
@@ -23,4 +28,12 @@ export const Colors = {
     tabIconDefault: '#9BA1A6',
     tabIconSelected: tintColorDark,
   },
+  menubar: {
+    text: white,
+    background: green,
+    tint: tintColorLight,
+    icon: white,
+    tabIconDefault: '#9BA1A6',
+    tabIconSelected: white,
+  }
 };

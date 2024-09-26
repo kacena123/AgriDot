@@ -10,25 +10,80 @@ export default function TabLayout() {
 
   return (
     <Tabs
-      screenOptions={{
-        tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
-        headerShown: false,
-      }}>
+    screenOptions={{
+      // Set the background color of the tab bar
+      tabBarStyle: {
+        backgroundColor: '#145E2F', // Custom background color
+        borderTopWidth: 0, // Remove tab bar border
+      },
+      // Set the color for active and inactive icons
+      tabBarActiveTintColor: '#ffff', // Active icon color
+      tabBarInactiveTintColor: '#a2bdac', // Inactive icon color
+      // Set the active and inactive text color (same as icon color)
+      tabBarLabelStyle: {
+        fontSize: 11,
+      },
+      // Hide the header if desired
+      headerShown: false,
+    }}>
       <Tabs.Screen
-        name="index"
+        name="fields"
         options={{
-          title: 'Home',
-          tabBarIcon: ({ color, focused }) => (
-            <TabBarIcon name={focused ? 'home' : 'home-outline'} color={color} />
+          title: 'Fields',
+          // Custom icon and color for each tab
+          tabBarIcon: ({ focused }) => (
+            <TabBarIcon
+              name={focused ? 'flower' : 'flower-outline'}
+              color={focused ? '#ffff' : '#a2bdac'} // Different colors for focused/unfocused
+            />
           ),
         }}
       />
       <Tabs.Screen
-        name="explore"
+        name="weather"
         options={{
-          title: 'Explore',
-          tabBarIcon: ({ color, focused }) => (
-            <TabBarIcon name={focused ? 'code-slash' : 'code-slash-outline'} color={color} />
+          title: 'Weather',
+          tabBarIcon: ({ focused }) => (
+            <TabBarIcon
+              name={focused ? 'partly-sunny' : 'partly-sunny-outline'}
+              color={focused ? '#ffff' : '#a2bdac'} // Different colors for focused/unfocused
+            />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="bugs"
+        options={{
+          title: 'Bugs',
+          tabBarIcon: ({ focused }) => (
+            <TabBarIcon
+              name={focused ? 'bug' : 'bug-outline'}
+              color={focused ? '#ffff' : '#a2bdac'} // Different colors for focused/unfocused
+            />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="guides"
+        options={{
+          title: 'Guides',
+          tabBarIcon: ({ focused }) => (
+            <TabBarIcon
+              name={focused ? 'book' : 'book-outline'}
+              color={focused ? '#ffff' : '#a2bdac'} // Different colors for focused/unfocused
+            />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="profile"
+        options={{
+          title: 'Profile',
+          tabBarIcon: ({ focused }) => (
+            <TabBarIcon
+              name={focused ? 'person' : 'person-outline'}
+              color={focused ? '#ffff' : '#a2bdac'} // Different colors for focused/unfocused
+            />
           ),
         }}
       />
