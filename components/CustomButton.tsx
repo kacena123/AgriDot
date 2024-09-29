@@ -1,23 +1,33 @@
-import { View, Text, TouchableOpacity} from 'react-native'
-import React from 'react'
+import React from 'react';
+import { TouchableOpacity, Text, StyleSheet, StyleProp, ViewStyle } from 'react-native';
 
 interface CustomButtonProps {
-    onPress: () => void
-    title: string
-    textStyles?: string
-    containerStyles?: string
+  title: string;
+  onPress: () => void;
+  containerStyles?: StyleProp<ViewStyle>;
 }
 
-const CustomButton = ({ onPress, title, textStyles = "", containerStyles = "" }: CustomButtonProps) => {
+const CustomButton: React.FC<CustomButtonProps> = ({ title, onPress, containerStyles }) => {
   return (
-    <TouchableOpacity 
-        activeOpacity={0.7} 
-        className={`bg-pink-500 rounded-xl min-h-[62px] justify-center items-center ${containerStyles}`}
-        onPress={onPress}
-        >
-            <Text className={`text-lg ${textStyles}`}>{title}</Text>
+    <TouchableOpacity style={[styles.button, containerStyles && StyleSheet.flatten(containerStyles)]} onPress={onPress}>
+      <Text style={styles.buttonText}>{title}</Text>
     </TouchableOpacity>
-  )
-}
+  );
+};
 
-export default CustomButton
+const styles = StyleSheet.create({
+  button: {
+    padding: 15,
+    backgroundColor: '#FD47B7', // Default color
+    borderRadius: 30,
+    alignItems: 'center',
+    marginTop: 10,
+    width: '100%',
+  },
+  buttonText: {
+    color: 'white',
+    fontSize: 20,
+  },
+});
+
+export default CustomButton;
