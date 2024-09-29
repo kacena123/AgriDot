@@ -27,7 +27,7 @@ export default function TabLayout() {
       headerShown: false,
     }}>
       <Tabs.Screen
-        name="fields"
+        name="index"
         options={{
           title: 'Fields',
           // Custom icon and color for each tab
