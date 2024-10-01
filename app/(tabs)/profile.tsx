@@ -30,11 +30,9 @@ const profile = () => {
               </View>
             </View>
           </View>
-          
           <StatusBar style="light" backgroundColor='#145E2F'/>
           </ImageBackground>
         </ScrollView>
-        
       </SafeAreaView>
     </GestureHandlerRootView>
   )
