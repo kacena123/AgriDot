@@ -14,7 +14,7 @@ export default function RootLayout() {
   const colorScheme = useColorScheme();
   const [loaded] = useFonts({
     SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
-    DMSans: require('../assets/fonts/DMSans-VariableFont_opsz,wght.ttf'),
+    DMSans: require('../assets/fonts/DMSans.ttf'),
   });
 
   useEffect(() => {

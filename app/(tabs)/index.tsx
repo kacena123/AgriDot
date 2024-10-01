@@ -71,12 +71,12 @@ const styles = StyleSheet.create({
     padding: 15, // Space inside the item
     marginVertical: 8, // Space between each item
     marginHorizontal: 16, // Space on the sides
-    borderRadius: 10, // Rounded corners
+    borderRadius: 20, // Rounded corners
   },
   image: {
     width: 50, // Set width of the image
     height: 50, // Set height of the image
-    borderRadius: 25, // Make the image circular
+    //borderRadius: 25, // Make the image circular
     marginRight: 15, // Space between image and text
   },
   textContainer: {
@@ -84,11 +84,14 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 18, // Larger font size for title
-    fontWeight: 'bold', // Bold text for title
+    //fontWeight: 'bold', // Bold text for title
     color: '#333', // Darker color for title
+    fontFamily: 'DMSans', // Custom font for title
+    marginBottom: 5, // Space between title and subtitle
   },
   subtitle: {
     fontSize: 14, // Smaller font size for subtitle
     color: '#666', // Lighter color for subtitle
+    fontFamily: 'DMSans', // Custom font for subtitle
   },
 })
