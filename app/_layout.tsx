@@ -37,7 +37,7 @@ export default function RootLayout() {
         {/* Field stack - No bottom tab navigation here */}
         <Stack.Screen 
           name="(field)/addField" 
-          options={{ headerShown: true, title: 'Add Field', 
+          options={{ headerShown: true, title: 'New Field', 
             headerStyle: {
               backgroundColor: '#145E2F',
             },
