@@ -1,7 +1,8 @@
-import { ScrollView, StyleSheet, Text, View, Image, FlatList } from 'react-native'
+import { TouchableOpacity, StyleSheet, Text, View, Image, FlatList } from 'react-native'
 import React from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { GestureHandlerRootView } from 'react-native-gesture-handler'
+import { useNavigation } from '@react-navigation/native'
 
 // Sample data with title and coordinates
 const DATA = [
@@ -38,16 +39,26 @@ const Item: React.FC<ItemProps> = ({ title, coordinates }) => (
 );
 
 const Fields = () => {
+  const navigation = useNavigation();
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
     <SafeAreaView className='bg-white h-full'>
-      
+
+        { /* FlatList to display the list of fields */ }
         <FlatList
           contentContainerStyle={{ flexGrow: 1 }}
           data={DATA}
           keyExtractor={item => item.id}
           renderItem={({ item }) => <Item title={item.title} coordinates={item.coordinates} />}
         />
+        
+        { /* Button + to add field */ }
+        <TouchableOpacity 
+          style={styles.roundButton} 
+          onPress={() => { navigation.navigate('(field)/addField') }}
+          >
+            <Text style={styles.plusIcon}>+</Text>
+        </TouchableOpacity>
       
     </SafeAreaView>
     </GestureHandlerRootView>
@@ -61,37 +72,56 @@ const styles = StyleSheet.create({
     display: 'flex',
     flex: 1,
     alignItems: 'center',
-    justifyContent: 'center'
+    justifyContent: 'center',
   },
   itemContainer: {
-    flexDirection: 'row', // Align image and text horizontally
-    alignItems: 'center', // Center the text vertically with the image
-    //backgroundColor: '#FD47B7', // Light pink background
+    flexDirection: 'row', 
+    alignItems: 'center', 
     backgroundColor: 'rgba(253, 71, 183, 0.23)', // Transparent pink background
-    padding: 15, // Space inside the item
-    marginVertical: 8, // Space between each item
-    marginHorizontal: 16, // Space on the sides
-    borderRadius: 20, // Rounded corners
+    padding: 15,
+    marginVertical: 8, 
+    marginHorizontal: 16, 
+    borderRadius: 20, 
   },
   image: {
-    width: 50, // Set width of the image
-    height: 50, // Set height of the image
+    width: 50,
+    height: 50,
     //borderRadius: 25, // Make the image circular
-    marginRight: 15, // Space between image and text
+    marginRight: 15, 
   },
   textContainer: {
-    flex: 1, // Take up the remaining space
+    flex: 1,
   },
   title: {
-    fontSize: 18, // Larger font size for title
-    //fontWeight: 'bold', // Bold text for title
-    color: '#333', // Darker color for title
-    fontFamily: 'DMSans', // Custom font for title
-    marginBottom: 5, // Space between title and subtitle
+    fontSize: 18, 
+    color: '#333', 
+    fontFamily: 'DMSans', 
+    marginBottom: 5, 
   },
   subtitle: {
-    fontSize: 14, // Smaller font size for subtitle
-    color: '#666', // Lighter color for subtitle
-    fontFamily: 'DMSans', // Custom font for subtitle
+    fontSize: 14, 
+    color: '#666', 
+    fontFamily: 'DMSans', 
+  },
+  roundButton: {
+    position: 'absolute',
+    bottom: 20,
+    right: 20,
+    width: 50,
+    height: 50,
+    borderRadius: 30,
+    backgroundColor: '#FD47B7',
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.8,
+    shadowRadius: 2,
+    elevation: 5,
+  },
+  plusIcon: {
+    fontSize: 30,
+    color: 'white',
+    lineHeight: 30,
   },
 })

@@ -30,8 +30,28 @@ export default function RootLayout() {
   return (
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
       <Stack>
+        
+        {/* Tabs Navigator */}
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+        
+        {/* Field stack - No bottom tab navigation here */}
+        <Stack.Screen 
+          name="(field)/addField" 
+          options={{ headerShown: true, title: 'Add Field', 
+            headerStyle: {
+              backgroundColor: '#145E2F',
+            },
+            headerTintColor: '#fff', 
+            headerTitleStyle: {
+              fontFamily: 'DMSans', 
+              fontSize: 20, 
+            },
+           }} 
+        />
+          
+        {/* Not Found */}
         <Stack.Screen name="+not-found" />
+
       </Stack>
     </ThemeProvider>
   );
