@@ -1,8 +1,10 @@
-import { TouchableOpacity, StyleSheet, Text, View, Image, FlatList } from 'react-native'
-import React, { useLayoutEffect } from 'react';
-import { useRoute, useNavigation } from '@react-navigation/native'
+import React, { useLayoutEffect, useRef } from 'react';
+import { View, Text, Image, StyleSheet, Alert } from 'react-native';
+import { useRoute, useNavigation } from '@react-navigation/native';
 import CustomButton from '@/components/CustomButton';
-import RNFS from 'react-native-fs';
+import ViewShot from 'react-native-view-shot';
+import * as FileSystem from 'expo-file-system';
+import * as Sharing from 'expo-sharing';
 
 const cropOrigin = () => {
 
@@ -11,26 +13,62 @@ const cropOrigin = () => {
     const { title } = route.params as { title: string };  // Extract title from route params
     console.log('Title:', title); 
 
+    const viewShotRef = useRef<ViewShot>(null);
+
     // Dynamically set the header title
     useLayoutEffect(() => {
         navigation.setOptions({
         headerTitle: title,  // Set the header title to the item's title
         });
     }, [navigation, title]);
+
+    const downloadImage = async () => {
+        try {
+          // Capture the image using ViewShot
+          const uri = await viewShotRef.current?.capture();
+          
+          if (uri) {
+            // Create a file path for the saved image
+            const fileUri = `${FileSystem.documentDirectory}QRcode.png`;
+    
+            // Move the captured image to the file system
+            await FileSystem.moveAsync({
+              from: uri,
+              to: fileUri,
+            });
+    
+            // Check if sharing is available, then share the image
+            if (await Sharing.isAvailableAsync()) {
+              await Sharing.shareAsync(fileUri);
+            } else {
+              Alert.alert('Success', 'Image saved to file system!');
+            }
+          } else {
+            Alert.alert('Error', 'Failed to capture image.');
+          }
+        } catch (error) {
+          Alert.alert('Error', 'Failed to download image.');
+          console.error(error);
+        }
+    };
     
 
   return (
 
     <View style={styles.container}>
       <Text style={styles.text}>Immutable proof of crop origin</Text>
-      <Image 
-        source={require('@/assets/images/QRcode.png')} 
-        style={styles.image} 
-        resizeMode="contain"
-      />
+      {/* Wrap the Image in ViewShot to capture it */}
+      <ViewShot ref={viewShotRef} options={{ format: 'png', quality: 1.0 }}>
+        <Image 
+          source={require('@/assets/images/QRcode.png')} 
+          style={styles.image} 
+          resizeMode="contain"
+        />
+      </ViewShot>
+
       <CustomButton 
-        title="Download" 
-        onPress={() => { /* Your button press logic here */ }}
+        title="Share QR Code" 
+        onPress={downloadImage}  // Correctly pass the downloadImage function
         containerStyles={{ borderRadius: 30, height: 50, width: 300 }}
         textStyles={{ fontSize: 18 }}
       />
