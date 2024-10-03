@@ -48,6 +48,21 @@ export default function RootLayout() {
             },
            }} 
         />
+
+        {/* Field stack - No bottom tab navigation here */}
+        <Stack.Screen 
+          name="(field)/detailField" 
+          options={{ headerShown: true, title: 'Detail Field', 
+            headerStyle: {
+              backgroundColor: '#145E2F',
+            },
+            headerTintColor: '#fff', 
+            headerTitleStyle: {
+              fontFamily: 'DMSans', 
+              fontSize: 20, 
+            },
+           }} 
+        />
           
         {/* Not Found */}
         <Stack.Screen name="+not-found" />

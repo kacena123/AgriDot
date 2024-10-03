@@ -20,9 +20,11 @@ const DATA = [
 type ItemProps = {
   title: string;
   coordinates: string;
+  onPress: () => void;
 };
 
-const Item: React.FC<ItemProps> = ({ title, coordinates }) => (
+const Item: React.FC<ItemProps> = ({ title, coordinates, onPress }) => (
+  <TouchableOpacity onPress={onPress}>
   <View style={styles.itemContainer}>
     {/* Icon or Image on the Left */}
     <Image
@@ -36,10 +38,17 @@ const Item: React.FC<ItemProps> = ({ title, coordinates }) => (
       <Text style={styles.subtitle}>{coordinates}</Text>
     </View>
   </View>
+  </TouchableOpacity>
 );
 
 const Fields = () => {
   const navigation = useNavigation();
+
+  const handleItemPress = (title: string) => {
+    // Navigate to detailField and pass the title as a param
+    navigation.navigate('(field)/detailField', { title });
+  };
+  
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
     <SafeAreaView className='bg-white h-full'>
@@ -49,7 +58,13 @@ const Fields = () => {
           contentContainerStyle={{ flexGrow: 1 }}
           data={DATA}
           keyExtractor={item => item.id}
-          renderItem={({ item }) => <Item title={item.title} coordinates={item.coordinates} />}
+          renderItem={({ item }) => (
+            <Item 
+              title={item.title} 
+              coordinates={item.coordinates} 
+              onPress={() => handleItemPress(item.title)} 
+            />
+          )}
         />
         
         { /* Button + to add field */ }
