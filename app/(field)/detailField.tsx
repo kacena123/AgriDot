@@ -56,7 +56,11 @@ const detailField = () => {
         headerTitle: title,  // Set the header title to the item's title
         });
     }, [navigation, title]);
-    
+
+    const handleItemPress = (title: string) => {
+        // Navigate to detailField and pass the title as a param
+        navigation.navigate('(field)/cropOrigin', { title });
+      };
   
     return (
         
@@ -70,7 +74,7 @@ const detailField = () => {
                 <Item 
                   title={item.title} 
                   harvest={item.harvest} 
-                  onPress={() => console.log('Tap')} 
+                  onPress={() => handleItemPress(item.title)} 
                 />
               )}
             />

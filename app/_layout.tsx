@@ -78,6 +78,21 @@ export default function RootLayout() {
             },
            }} 
         />
+
+        {/* Crop origin */}
+        <Stack.Screen 
+          name="(field)/cropOrigin" 
+          options={{ headerShown: true, title: 'Crop Origin', 
+            headerStyle: {
+              backgroundColor: '#145E2F',
+            },
+            headerTintColor: '#fff', 
+            headerTitleStyle: {
+              fontFamily: 'DMSans', 
+              fontSize: 20, 
+            },
+           }} 
+        />
           
         {/* Not Found */}
         <Stack.Screen name="+not-found" />
