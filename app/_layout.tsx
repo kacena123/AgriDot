@@ -34,7 +34,7 @@ export default function RootLayout() {
         {/* Tabs Navigator */}
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
         
-        {/* Field stack - No bottom tab navigation here */}
+        {/* New field */}
         <Stack.Screen 
           name="(field)/addField" 
           options={{ headerShown: true, title: 'New Field', 
@@ -49,10 +49,25 @@ export default function RootLayout() {
            }} 
         />
 
-        {/* Field stack - No bottom tab navigation here */}
+        {/* Detail field */}
         <Stack.Screen 
           name="(field)/detailField" 
           options={{ headerShown: true, title: 'Detail Field', 
+            headerStyle: {
+              backgroundColor: '#145E2F',
+            },
+            headerTintColor: '#fff', 
+            headerTitleStyle: {
+              fontFamily: 'DMSans', 
+              fontSize: 20, 
+            },
+           }} 
+        />
+
+        {/* New crop */}
+        <Stack.Screen 
+          name="(field)/addCrop" 
+          options={{ headerShown: true, title: 'New Crop', 
             headerStyle: {
               backgroundColor: '#145E2F',
             },
