@@ -3,6 +3,7 @@ import React from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { GestureHandlerRootView } from 'react-native-gesture-handler'
 import { useNavigation } from '@react-navigation/native'
+import { StatusBar } from 'expo-status-bar'
 
 // Sample data with title and coordinates
 const DATA = [
@@ -74,6 +75,13 @@ const Fields = () => {
           >
             <Text style={styles.plusIcon}>+</Text>
         </TouchableOpacity>
+
+        <StatusBar
+          style="light"
+          backgroundColor='#145E2F'
+          translucent={false}  // Prevents status bar from overlaying the app content
+          animated={true}  // Smooth transition when changing status bar properties
+        />
       
     </SafeAreaView>
     </GestureHandlerRootView>

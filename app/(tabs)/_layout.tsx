@@ -22,6 +22,7 @@ export default function TabLayout() {
       // Set the active and inactive text color (same as icon color)
       tabBarLabelStyle: {
         fontSize: 11,
+        fontFamily: 'DMSans',
       },
       // Hide the header if desired
       headerShown: false,
@@ -30,7 +31,6 @@ export default function TabLayout() {
         name="index"
         options={{
           title: 'Fields',
-          // Custom icon and color for each tab
           tabBarIcon: ({ focused }) => (
             <TabBarIcon
               name={focused ? 'flower' : 'flower-outline'}
