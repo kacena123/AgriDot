@@ -1,13 +1,21 @@
 import { StyleSheet, Text, View } from 'react-native'
-import React from 'react'
-import { useRoute } from '@react-navigation/native'
+import React, { useLayoutEffect } from 'react';
+import { useRoute, useNavigation } from '@react-navigation/native'
 
 
 const detailField = () => {
 
     const route = useRoute();
+    const navigation = useNavigation();
     const { title } = route.params as { title: string };  // Extract title from route params
     console.log('Title:', title); 
+
+    // Dynamically set the header title
+    useLayoutEffect(() => {
+        navigation.setOptions({
+        headerTitle: title,  // Set the header title to the item's title
+        });
+    }, [navigation, title]);
     
   
     return (
