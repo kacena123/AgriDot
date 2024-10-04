@@ -1,11 +1,11 @@
-import { StyleSheet, Text, View, TouchableOpacity, TextInput, ScrollView } from 'react-native'
+import { StyleSheet, Text, View, TouchableOpacity, TextInput, ScrollView, Image } from 'react-native'
 import React from 'react'
 import { Ionicons } from '@expo/vector-icons';
 import { StatusBar } from 'expo-status-bar'
 import CustomButton from '@/components/CustomButton'
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { useState } from 'react';
-
+import * as ImagePicker from 'expo-image-picker';
 
 
 const addCrop = () => {
@@ -22,12 +22,42 @@ const addCrop = () => {
     setShow(true);
   };
 
+  const [selectedImage, setSelectedImage] = useState(null);
+
+  // Function to handle image picking
+  const pickImage = async () => {
+    // Request permission to access media library
+    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (status !== 'granted') {
+      alert('Sorry, we need camera roll permissions to make this work!');
+      return;
+    }
+
+    // Open image picker
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      //aspect: [4, 3],
+      quality: 1,
+    });
+
+    if (!result.canceled) {
+      setSelectedImage(result.assets[0].uri);  // Access the correct field for the image URI
+    }
+  };
+
   return (
     <ScrollView contentContainerStyle={styles.wrapper}>
       {/* Upload Image */}
-      <TouchableOpacity style={styles.container}>
-        <Ionicons name="cloud-upload" size={32} color="green" />
-        <Text style={styles.text}>Upload Image</Text>
+      <TouchableOpacity style={styles.container} onPress={pickImage}>
+        {selectedImage ? (
+          <Image source={{ uri: selectedImage }} style={styles.fullImage} />
+        ) : (
+          <>
+            <Ionicons name="cloud-upload" size={32} color="green" />
+            <Text style={styles.text}>Upload Image</Text>
+          </>
+        )}
       </TouchableOpacity>
       {/* Add Crop Name */}
       <Text style={{ fontFamily: 'DMSans', fontSize: 16 }}>Crop Name:</Text>
@@ -134,5 +164,10 @@ const styles = StyleSheet.create({
       fontFamily: 'DMSans',
       fontSize: 16,
       color: '#000',
+    },
+    fullImage: {
+      width: '100%',   // Make image fit the entire container width
+      height: '100%',  // Make image fit the entire container height
+      borderRadius: 20,
     },
 })
