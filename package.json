@@ -41,7 +41,8 @@
     "react-native-view-shot": "3.8.0",
     "react-native-web": "~0.19.10",
     "expo-file-system": "~17.0.1",
-    "expo-sharing": "~12.0.1"
+    "expo-sharing": "~12.0.1",
+    "expo-image-picker": "~15.0.7"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",
