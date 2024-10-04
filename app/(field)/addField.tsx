@@ -4,9 +4,13 @@ import { Ionicons } from '@expo/vector-icons';
 import { StatusBar } from 'expo-status-bar'
 import CustomButton from '@/components/CustomButton'
 import * as ImagePicker from 'expo-image-picker';
+import * as Location from 'expo-location';
 
 const addField = () => {
   const [selectedImage, setSelectedImage] = useState(null);
+
+  const [latitude, setLatitude] = useState('');
+  const [longitude, setLongitude] = useState('');
 
   // Function to handle image picking
   const pickImage = async () => {
@@ -28,6 +32,21 @@ const addField = () => {
     if (!result.canceled) {
       setSelectedImage(result.assets[0].uri);  // Access the correct field for the image URI
     }
+  };
+
+  // Function to get user's current location
+  const useMyLocation = async () => {
+    // Request permission to access location
+    let { status } = await Location.requestForegroundPermissionsAsync();
+    if (status !== 'granted') {
+      alert('Permission to access location was denied');
+      return;
+    }
+
+    // Get current location
+    let location = await Location.getCurrentPositionAsync({});
+    setLatitude(location.coords.latitude.toString());
+    setLongitude(location.coords.longitude.toString());
   };
 
   return (
@@ -56,16 +75,21 @@ const addField = () => {
         style={styles.input}
         placeholder="Enter field latitude"
         placeholderTextColor="#666"
+        value={latitude} // Update TextInput with latitude
+        onChangeText={setLatitude} // Update latitude with TextInput value
       />
       <Text style={{ fontFamily: 'DMSans', fontSize: 16 }}>Longitude:</Text>
       <TextInput
         style={styles.input}
         placeholder="Enter field longitude"
         placeholderTextColor="#666"
+        value={longitude} // Update TextInput with longitude
+        onChangeText={setLongitude} // Update longitude with TextInput value
       />
       {/* Use My Location button */}
-      <CustomButton title='Use My Lcation' 
-        onPress={() => {console.log('tap')}}
+      <CustomButton 
+        title='Use My Lcation' 
+        onPress={useMyLocation}
         containerStyles={{ borderRadius: 20, height: 50, marginBottom: 20 }}
         textStyles={{ fontSize: 16 }} 
       />
