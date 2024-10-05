@@ -52,9 +52,9 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="bugs"
+        name="pests"
         options={{
-          title: 'Bugs',
+          title: 'Pests',
           tabBarIcon: ({ focused }) => (
             <TabBarIcon
               name={focused ? 'bug' : 'bug-outline'}
