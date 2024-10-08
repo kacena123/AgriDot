@@ -79,8 +79,6 @@ const Fields = () => {
         <StatusBar
           style="light"
           backgroundColor='#145E2F'
-          translucent={false}  // Prevents status bar from overlaying the app content
-          animated={true}  // Smooth transition when changing status bar properties
         />
       
     </SafeAreaView>
