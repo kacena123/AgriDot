@@ -1,12 +1,13 @@
 import { StyleSheet, Text, View } from 'react-native'
 import React from 'react'
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { StatusBar } from 'expo-status-bar';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 
 // Importing your two screens
 import MyPests from '@/app/(pests)/myPests';
 import NearbyPests from '@/app/(pests)/nearbyPests';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { StatusBar } from 'expo-status-bar';
+
 
 const pests = () => {
   const TopTab = createMaterialTopTabNavigator();
