@@ -93,6 +93,36 @@ export default function RootLayout() {
             },
            }} 
         />
+
+        {/* Pest detail */}
+        <Stack.Screen 
+          name="(pests)/detailPest" 
+          options={{ headerShown: true, title: 'Detail Pest', 
+            headerStyle: {
+              backgroundColor: '#145E2F',
+            },
+            headerTintColor: '#fff', 
+            headerTitleStyle: {
+              fontFamily: 'DMSans', 
+              fontSize: 20, 
+            },
+           }} 
+        />
+
+        {/* Add Pest */}
+        <Stack.Screen 
+          name="(pests)/addPest" 
+          options={{ headerShown: true, title: 'New Pest', 
+            headerStyle: {
+              backgroundColor: '#145E2F',
+            },
+            headerTintColor: '#fff', 
+            headerTitleStyle: {
+              fontFamily: 'DMSans', 
+              fontSize: 20, 
+            },
+           }} 
+        />
           
         {/* Not Found */}
         <Stack.Screen name="+not-found" />
