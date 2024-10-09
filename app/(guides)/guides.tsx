@@ -1,4 +1,4 @@
-import { StyleSheet, Text, TouchableOpacity, FlatList, View } from 'react-native'
+import { StyleSheet, Text, TouchableOpacity, FlatList, View, TextInput } from 'react-native'
 import React from 'react'
 import { GestureHandlerRootView } from 'react-native-gesture-handler'
 import { SafeAreaView } from 'react-native-safe-area-context'
@@ -58,6 +58,17 @@ const Guides = () => {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
     <SafeAreaView className='bg-white h-full'>
+
+        
+        <View style={styles.searchContainer}>
+          <TextInput
+            style={styles.searchText}
+            placeholder="search..."
+          />
+          <TouchableOpacity onPress={() => console.log('tap')}>
+            <Ionicons name="search" size={24} color="#145E2F" />
+          </TouchableOpacity>
+        </View>
 
         { /* FlatList to display the list of fields */ }
         <FlatList
@@ -156,5 +167,24 @@ const styles = StyleSheet.create({
     fontSize: 30,
     color: 'white',
     lineHeight: 30,
+  },
+  searchContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    borderColor: 'rgba(20, 94, 47, 0.15)',
+    backgroundColor: 'rgba(20, 94, 47, 0.15)',
+    borderWidth: 1,
+    borderRadius: 20,
+    paddingHorizontal: 10,
+    paddingVertical: 10,
+    marginVertical: 10,
+    minHeight: 50,
+    marginHorizontal: 16,
+  },
+  searchText: {
+    fontFamily: 'DMSans',
+    fontSize: 16,
+    color: '#000',
   },
 })
