@@ -168,6 +168,36 @@ export default function RootLayout() {
             },
            }}
         />
+
+        {/* Add Guide */}
+        <Stack.Screen 
+          name="(guides)/addGuide" 
+          options={{ headerShown: true, title: 'New Guide', 
+            headerStyle: {
+              backgroundColor: '#145E2F',
+            },
+            headerTintColor: '#fff', 
+            headerTitleStyle: {
+              fontFamily: 'DMSans', 
+              fontSize: 20, 
+            },
+           }}
+        />
+
+        {/* Detail Guide */}
+        <Stack.Screen 
+          name="(guides)/detailGuide" 
+          options={{ headerShown: true, title: 'Detail Guide', 
+            headerStyle: {
+              backgroundColor: '#145E2F',
+            },
+            headerTintColor: '#fff', 
+            headerTitleStyle: {
+              fontFamily: 'DMSans', 
+              fontSize: 20, 
+            },
+          }}
+        />
           
         {/* Not Found */}
         <Stack.Screen name="+not-found" />
