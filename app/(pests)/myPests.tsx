@@ -9,7 +9,6 @@ import { Ionicons } from '@expo/vector-icons';
 const DATA = [
     { id: '1', title: 'Pest 1', location: 'Location 1', dateAdded: 'June 28, 2024' },
     { id: '2', title: 'Pest 2', location: 'Location 2', dateAdded: 'June 28, 2024' },
-    // Add more items as needed
   ];
 
 type ItemProps = {

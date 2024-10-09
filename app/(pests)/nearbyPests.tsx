@@ -12,7 +12,6 @@ const DATA = [
     { id: '3', title: 'Pest 3', location: 'Location 3', dateAdded: 'June 28, 2024' },
     { id: '4', title: 'Pest 4', location: 'Location 4', dateAdded: 'June 28, 2024' },
     { id: '5', title: 'Pest 5', location: 'Location 5', dateAdded: 'June 28, 2024' },
-    // Add more items as needed
   ];
 
 type ItemProps = {
