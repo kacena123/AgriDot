@@ -73,6 +73,16 @@ const NearbyPests = () => {
             <Text style={styles.plusIcon}>+</Text>
         </TouchableOpacity>
 
+         {/* Button filter */}
+         <TouchableOpacity 
+          style={styles.leftButton} 
+          onPress={() => { navigation.navigate('(pests)/pestsFilter') }}
+          >
+            {/* Icon or Image on the Left */}
+            <Ionicons name="options" color="#fff" size={25} />
+        </TouchableOpacity>
+
+        {/* Status Bar */}
         <StatusBar
           style="light"
           backgroundColor='#145E2F'
@@ -141,5 +151,22 @@ const styles = StyleSheet.create({
         fontSize: 30,
         color: 'white',
         lineHeight: 30,
+      },
+      leftButton: {
+        position: 'absolute',
+        bottom: 20,
+        right: 20,
+        width: 50,
+        height: 50,
+        borderRadius: 30,
+        backgroundColor: '#FD47B7',
+        justifyContent: 'center',
+        alignItems: 'center',
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.8,
+        shadowRadius: 2,
+        elevation: 5,
+        left: 20,
       },
 });

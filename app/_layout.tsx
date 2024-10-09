@@ -138,6 +138,36 @@ export default function RootLayout() {
             },
            }} 
         />
+
+        {/* My Pests Filter */}
+        <Stack.Screen 
+          name="(pests)/myPestsFilter" 
+          options={{ headerShown: true, title: 'My Pests Filter', 
+            headerStyle: {
+              backgroundColor: '#145E2F',
+            },
+            headerTintColor: '#fff', 
+            headerTitleStyle: {
+              fontFamily: 'DMSans', 
+              fontSize: 20, 
+            },
+           }}
+        />
+
+        {/* All Pests Filter */}
+        <Stack.Screen 
+          name="(pests)/pestsFilter" 
+          options={{ headerShown: true, title: 'Pests Filter', 
+            headerStyle: {
+              backgroundColor: '#145E2F',
+            },
+            headerTintColor: '#fff', 
+            headerTitleStyle: {
+              fontFamily: 'DMSans', 
+              fontSize: 20, 
+            },
+           }}
+        />
           
         {/* Not Found */}
         <Stack.Screen name="+not-found" />

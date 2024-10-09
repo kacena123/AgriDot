@@ -121,7 +121,6 @@ const styles = StyleSheet.create({
         fontFamily: 'DMSans',
         marginLeft: 10,
         fontSize: 16,
-        
       },
       input: {
         fontFamily: 'DMSans',
