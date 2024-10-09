@@ -123,6 +123,21 @@ export default function RootLayout() {
             },
            }} 
         />
+
+        {/* Report Pest */}
+        <Stack.Screen 
+          name="(pests)/reportPest" 
+          options={{ headerShown: true, title: 'Mark fake pest report', 
+            headerStyle: {
+              backgroundColor: '#145E2F',
+            },
+            headerTintColor: '#fff', 
+            headerTitleStyle: {
+              fontFamily: 'DMSans', 
+              fontSize: 20, 
+            },
+           }} 
+        />
           
         {/* Not Found */}
         <Stack.Screen name="+not-found" />

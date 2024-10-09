@@ -39,7 +39,7 @@ const detailPest = () => {
 
       {/* Mark fake pest report Button */}
       <CustomButton title='Mark fake pest report' 
-        onPress={() => {console.log('tap')}}
+        onPress={() => {navigation.navigate('(pests)/reportPest')}}
         containerStyles={{ borderRadius: 20, height: 50, backgroundColor: '#145E2F' }}
         textStyles={{ fontSize: 18 }}
       />

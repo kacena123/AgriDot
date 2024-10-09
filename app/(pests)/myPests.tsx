@@ -93,7 +93,7 @@ const styles = StyleSheet.create({
       itemContainer: {
         flexDirection: 'row', 
         alignItems: 'center', 
-        backgroundColor: 'rgba(253, 71, 183, 0.23)', // Transparent pink background
+        backgroundColor: 'rgba(253, 71, 183, 0.23)',
         padding: 15,
         marginVertical: 8, 
         marginHorizontal: 16, 
@@ -101,7 +101,7 @@ const styles = StyleSheet.create({
       },
       image: {
         width: 40,
-        height: 50,
+        height: 40,
         //borderRadius: 25, // Make the image circular
         marginRight: 15, 
       },
@@ -109,10 +109,10 @@ const styles = StyleSheet.create({
         flex: 1,
       },
       title: {
-        fontSize: 20, 
+        fontSize: 19, 
         color: '#333', 
         fontFamily: 'DMSans', 
-        marginBottom: 5, 
+        marginBottom: 2, 
       },
       subtitle: {
         fontSize: 14, 

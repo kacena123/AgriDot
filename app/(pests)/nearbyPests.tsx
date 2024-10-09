@@ -103,7 +103,7 @@ const styles = StyleSheet.create({
       },
       image: {
         width: 40,
-        height: 50,
+        height: 40,
         //borderRadius: 25, // Make the image circular
         marginRight: 15, 
       },
@@ -111,10 +111,10 @@ const styles = StyleSheet.create({
         flex: 1,
       },
       title: {
-        fontSize: 20, 
+        fontSize: 19, 
         color: '#333', 
-        fontFamily: 'DMSans', 
-        marginBottom: 5, 
+        fontFamily: 'DMSans',  
+        marginBottom: 2,
       },
       subtitle: {
         fontSize: 14, 
