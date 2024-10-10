@@ -35,7 +35,7 @@ const detailGuide = () => {
       </Text>
 
       <CustomButton title="Report guide" 
-        onPress={() => {} }
+        onPress={() => {navigation.navigate('(guides)/reportGuide')} }
         containerStyles={{ borderRadius: 20, height: 52, backgroundColor: '#145E2F', marginTop: 30, marginBottom: 10 }}
         textStyles={{ fontSize: 18 }}
       />

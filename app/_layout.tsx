@@ -198,6 +198,21 @@ export default function RootLayout() {
             },
           }}
         />
+
+        {/* Report Guide */}
+        <Stack.Screen 
+          name="(guides)/reportGuide" 
+          options={{ headerShown: true, title: 'Report Guide', 
+            headerStyle: {
+              backgroundColor: '#145E2F',
+            },
+            headerTintColor: '#fff', 
+            headerTitleStyle: {
+              fontFamily: 'DMSans', 
+              fontSize: 20, 
+            },
+          }}
+        />
           
         {/* Not Found */}
         <Stack.Screen name="+not-found" />
