@@ -4,7 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 
-// Importing your two screens
+// Importing screens
 import MyGuides from '@/app/(guides)/myGuides';
 import Guides from '@/app/(guides)/guides';
 
