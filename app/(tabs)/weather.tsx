@@ -19,7 +19,7 @@ const weather = () => {
     <SafeAreaView style={{ flex: 1, backgroundColor: 'white' }}>
 
         {/* Picker for selecting location */}
-        <View style={{ paddingHorizontal: 10 }}>
+        <View style={{ paddingHorizontal: 10, marginTop: 10 }}>
         <View style={styles.pickerContainer}>
             <Picker
                 selectedValue={selectedLocation}
