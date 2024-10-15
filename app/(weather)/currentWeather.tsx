@@ -94,7 +94,7 @@ const CurrentWeather = () => {
             <Text style={{ fontSize: 35, fontFamily: 'DMSans' }}>Not available</Text>
           )}
           <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 10 }}>
-            <Fontisto name="wind" size={22} color='#FD47B7' />
+            <Fontisto name="wind" size={22} color='#4F8CAE' />
             <Text style={{ fontSize: 18, fontFamily: 'DMSans', marginLeft: 10 }}>
               {weatherData?.windSpeed10m} m/s
             </Text>
