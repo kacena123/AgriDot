@@ -33,9 +33,10 @@ const CurrentWeather = () => {
           latitude: 48.157998, // Update this with dynamic latitude if needed
           longitude: 17.068557, // Update this with dynamic longitude if needed
           current_weather: true, // Enable current weather
+          timezone: "auto", // Use auto to automatically detect timezone
         };
 
-        const url = `https://api.open-meteo.com/v1/forecast?latitude=${params.latitude}&longitude=${params.longitude}&current_weather=${params.current_weather}`;
+        const url = `https://api.open-meteo.com/v1/forecast?latitude=${params.latitude}&longitude=${params.longitude}&current_weather=${params.current_weather}&timezone=${params.timezone}`;
         
         // Fetch weather data using fetch (React Native built-in)
         const response = await fetch(url);
@@ -94,6 +95,7 @@ const CurrentWeather = () => {
           <Text style={{ marginTop: 50, padding:20 }}>Current Weather</Text>
           {weatherData ? (
             <View style={styles.weatherContainer}>
+
               <Text>Time: {weatherData.time.toLocaleTimeString()}</Text>
               <Text>Temperature: {weatherData.temperature2m} °C</Text>
               <Text>Humidity: {weatherData.relativeHumidity2m} %</Text>
@@ -109,6 +111,7 @@ const CurrentWeather = () => {
               <Text>Weather Code: {weatherData.weatherCode}</Text>
               <Text>Is Day: {weatherData.isDay ? "Yes" : "No"}</Text>
               <Text>Rain: {weatherData.rain} mm</Text>
+              
             </View>
           ) : (
             <Text>No weather data available</Text>
