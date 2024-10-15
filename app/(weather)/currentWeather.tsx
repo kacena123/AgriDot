@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { StyleSheet, Text, View, SafeAreaView, ScrollView, ImageBackground, Image, ActivityIndicator } from 'react-native';
+import ClearDayIcon from '@/assets/weathericons/clear-day.svg';
+import CloudyNightIcon from '@/assets/weathericons/cloudy-night.svg';
 
 // Define the interface for the weather data
 interface WeatherData {
@@ -92,10 +94,11 @@ const CurrentWeather = () => {
           <ImageBackground source={require('@/assets/images/Polygon2_1.png')} style={styles.sideImage} resizeMode="contain" />
         </View>
         <View>
-          <Text style={{ marginTop: 50, padding:20 }}>Current Weather</Text>
+          <Text style={{ padding:20 }}>Current Weather</Text>
           {weatherData ? (
             <View style={styles.weatherContainer}>
-
+              <ClearDayIcon width={200} height={200} />
+              <CloudyNightIcon width={200} height={200} />
               <Text>Time: {weatherData.time.toLocaleTimeString()}</Text>
               <Text>Temperature: {weatherData.temperature2m} °C</Text>
               <Text>Humidity: {weatherData.relativeHumidity2m} %</Text>
@@ -140,7 +143,6 @@ const styles = StyleSheet.create({
     height: 450,
   },
   weatherContainer: {
-    marginTop: 20,
     padding: 20,
   },
 });
