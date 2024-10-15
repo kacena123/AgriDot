@@ -2,25 +2,17 @@ import React, { useState, useEffect } from 'react';
 import { StyleSheet, Text, View, SafeAreaView, ScrollView, ImageBackground, Image, ActivityIndicator } from 'react-native';
 import ClearDayIcon from '@/assets/weathericons/clear-day.svg';
 import CloudyNightIcon from '@/assets/weathericons/cloudy-night.svg';
+import { getWeatherIcon } from '@/utils/weatherIcons';
+import { Fontisto } from '@expo/vector-icons';
 
 // Define the interface for the weather data
 interface WeatherData {
   time: Date;
   temperature2m: number;
-  relativeHumidity2m: number;
-  apparentTemperature: number;
-  isDay: number;
-  precipitation: number;
-  rain: number;
-  showers: number;
-  snowfall: number;
+  isDay: boolean;
   weatherCode: number;
-  cloudCover: number;
-  pressureMsl: number;
-  surfacePressure: number;
   windSpeed10m: number;
   windDirection10m: number;
-  windGusts10m: number;
 }
 
 const CurrentWeather = () => {
@@ -55,20 +47,10 @@ const CurrentWeather = () => {
         const weather: WeatherData = {
           time: new Date(currentWeather.time),
           temperature2m: currentWeather.temperature,
-          relativeHumidity2m: currentWeather.humidity ?? 0, // API might not include humidity, fallback to 0
-          apparentTemperature: currentWeather.apparent_temperature ?? currentWeather.temperature,
           isDay: currentWeather.is_day,
-          precipitation: currentWeather.precipitation ?? 0,
-          rain: currentWeather.rain, // Open-Meteo API might not provide detailed rain info here
-          showers: 0, // Open-Meteo API might not provide this info
-          snowfall: currentWeather.snowfall ?? 0,
           weatherCode: currentWeather.weathercode ?? 0,
-          cloudCover: currentWeather.cloudcover ?? 0,
-          pressureMsl: currentWeather.pressure_msl ?? 0,
-          surfacePressure: currentWeather.surface_pressure ?? 0,
           windSpeed10m: currentWeather.windspeed,
           windDirection10m: currentWeather.winddirection,
-          windGusts10m: currentWeather.windgusts ?? 0,
         };
 
         setWeatherData(weather);
@@ -86,6 +68,8 @@ const CurrentWeather = () => {
     return <ActivityIndicator size="large" color="#0000ff" />;
   }
 
+  const WeatherIcon = getWeatherIcon(weatherData?.weatherCode ?? 0, weatherData?.isDay ?? true);
+
   return (
     <ScrollView style={styles.wrapper}>
       <SafeAreaView>
@@ -93,32 +77,31 @@ const CurrentWeather = () => {
           <ImageBackground source={require('@/assets/images/Polygon1_1.png')} style={styles.sideImage} resizeMode="contain" />
           <ImageBackground source={require('@/assets/images/Polygon2_1.png')} style={styles.sideImage} resizeMode="contain" />
         </View>
-        <View>
-          <Text style={{ padding:20 }}>Current Weather</Text>
+        <View style={{alignItems: 'center', marginTop: 50}}>
           {weatherData ? (
-            <View style={styles.weatherContainer}>
-              <ClearDayIcon width={200} height={200} />
-              <CloudyNightIcon width={200} height={200} />
-              <Text>Time: {weatherData.time.toLocaleTimeString()}</Text>
-              <Text>Temperature: {weatherData.temperature2m} °C</Text>
-              <Text>Humidity: {weatherData.relativeHumidity2m} %</Text>
-              <Text>Apparent Temperature: {weatherData.apparentTemperature} °C</Text>
-              <Text>Precipitation: {weatherData.precipitation} mm</Text>
-              <Text>Cloud Cover: {weatherData.cloudCover} %</Text>
-              <Text>Wind Speed: {weatherData.windSpeed10m} m/s</Text>
-              <Text>Wind Direction: {weatherData.windDirection10m} °</Text>
-              <Text>Wind Gusts: {weatherData.windGusts10m} m/s</Text>
-              <Text>Pressure MSL: {weatherData.pressureMsl} hPa</Text>
-              <Text>Surface Pressure: {weatherData.surfacePressure} hPa</Text>
-              <Text>Snowfall: {weatherData.snowfall} mm</Text>
-              <Text>Weather Code: {weatherData.weatherCode}</Text>
-              <Text>Is Day: {weatherData.isDay ? "Yes" : "No"}</Text>
-              <Text>Rain: {weatherData.rain} mm</Text>
-              
-            </View>
+            <Text style={{ fontSize: 18, fontFamily: 'DMSans' }}>
+              Today {weatherData.time.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+            </Text>  
           ) : (
-            <Text>No weather data available</Text>
+            <Text style={{ fontSize: 18, fontFamily: 'DMSans' }}>Today</Text>
           )}
+          <WeatherIcon width={130} height={130} />
+          {weatherData ? (
+            <Text style={{ fontSize: 40, fontFamily: 'DMSans', marginTop: 50}}>
+              {weatherData.temperature2m}°C
+            </Text>  
+          ) : (
+            <Text style={{ fontSize: 35, fontFamily: 'DMSans' }}>Not available</Text>
+          )}
+          <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 10 }}>
+            <Fontisto name="wind" size={22} color='#FD47B7' />
+            <Text style={{ fontSize: 18, fontFamily: 'DMSans', marginLeft: 10 }}>
+              {weatherData?.windSpeed10m} m/s
+            </Text>
+          </View>
+          <Text style={{ fontSize: 18, fontFamily: 'DMSans', marginTop: 200 }}>
+            {weatherData?.isDay ? 'Day' : 'Night'}
+          </Text>
         </View>
       </SafeAreaView>
     </ScrollView>
@@ -139,7 +122,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
   },
   sideImage: {
-    width: 180,
+    width: 140,
     height: 450,
   },
   weatherContainer: {
