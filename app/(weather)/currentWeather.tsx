@@ -1,7 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, Text, View, SafeAreaView, ScrollView, ImageBackground, Image, ActivityIndicator } from 'react-native';
-import ClearDayIcon from '@/assets/weathericons/clear-day.svg';
-import CloudyNightIcon from '@/assets/weathericons/cloudy-night.svg';
+import { StyleSheet, Text, View, SafeAreaView, ScrollView, ImageBackground, ActivityIndicator, FlatList } from 'react-native';
 import { getWeatherIcon } from '@/utils/weatherIcons';
 import { Fontisto } from '@expo/vector-icons';
 
@@ -15,8 +13,16 @@ interface WeatherData {
   windDirection10m: number;
 }
 
+interface HourlyData {
+  time: Date;
+  temperature2m: number;
+  weatherCode: number;
+  isDay: boolean;
+}
+
 const CurrentWeather = () => {
   const [weatherData, setWeatherData] = useState<WeatherData | null>(null);
+  const [hourlyForecast, setHourlyForecast] = useState<HourlyData[]>([]);
   const [loading, setLoading] = useState(true);
 
   // Fetch weather data when the component mounts
@@ -24,26 +30,26 @@ const CurrentWeather = () => {
     const fetchData = async () => {
       try {
         const params = {
-          latitude: 48.157998, // Update this with dynamic latitude if needed
-          longitude: 17.068557, // Update this with dynamic longitude if needed
-          current_weather: true, // Enable current weather
-          timezone: "auto", // Use auto to automatically detect timezone
+          latitude: 48.157998,
+          longitude: 17.068557,
+          current_weather: true,
+          hourly: 'temperature_2m,weather_code,is_day',
+          timezone: "auto",
         };
 
-        const url = `https://api.open-meteo.com/v1/forecast?latitude=${params.latitude}&longitude=${params.longitude}&current_weather=${params.current_weather}&timezone=${params.timezone}`;
+        const url = `https://api.open-meteo.com/v1/forecast?latitude=${params.latitude}&longitude=${params.longitude}&current_weather=${params.current_weather}&hourly=${params.hourly}&timezone=${params.timezone}`;
         
-        // Fetch weather data using fetch (React Native built-in)
         const response = await fetch(url);
         const data = await response.json();
 
-        if (!data.current_weather) {
-          console.error("Current weather data is not available.");
+        if (!data.current_weather || !data.hourly) {
+          console.error("Current or hourly weather data is not available.");
+          setLoading(false);
           return;
         }
 
-        // Extract weather data from API response
+        // Extract current weather
         const currentWeather = data.current_weather;
-
         const weather: WeatherData = {
           time: new Date(currentWeather.time),
           temperature2m: currentWeather.temperature,
@@ -53,8 +59,17 @@ const CurrentWeather = () => {
           windDirection10m: currentWeather.winddirection,
         };
 
+        // Extract hourly forecast data (next 12 hours)
+        const hourlyData: HourlyData[] = data.hourly.time.slice(0, 12).map((time: string, index: number) => ({
+          time: new Date(time),
+          temperature2m: data.hourly.temperature_2m[index],
+          weatherCode: data.hourly.weather_code[index],
+          isDay: data.hourly.is_day[index],
+        }));
+
         setWeatherData(weather);
-        setLoading(false); // Loading done
+        setHourlyForecast(hourlyData);
+        setLoading(false);
       } catch (error) {
         console.error("Error fetching weather data: ", error);
         setLoading(false);
@@ -69,6 +84,17 @@ const CurrentWeather = () => {
   }
 
   const WeatherIcon = getWeatherIcon(weatherData?.weatherCode ?? 0, weatherData?.isDay ?? true);
+
+  const renderHourlyItem = ({ item }: { item: HourlyData }) => {
+    const HourlyIcon = getWeatherIcon(item.weatherCode, item.isDay);
+    return (
+      <View style={styles.hourlyItem}>
+        <HourlyIcon width={70} height={60} />
+        <Text style={styles.hourlyTime}>{item.time.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</Text>
+        <Text style={styles.hourlyTemp}>{item.temperature2m}°C</Text>
+      </View>
+    );
+  };
 
   return (
     <ScrollView style={styles.wrapper}>
@@ -99,9 +125,17 @@ const CurrentWeather = () => {
               {weatherData?.windSpeed10m} m/s
             </Text>
           </View>
-          <Text style={{ fontSize: 18, fontFamily: 'DMSans', marginTop: 200 }}>
-            {weatherData?.isDay ? 'Day' : 'Night'}
-          </Text>
+        </View>
+        {/* Horizontal FlatList for 12-hour forecast */}
+        <View style={{marginTop: 50}}>
+        <FlatList
+          data={hourlyForecast}
+          renderItem={renderHourlyItem}
+          keyExtractor={(item, index) => index.toString()}
+          horizontal
+          style={styles.hourlyList}
+          showsHorizontalScrollIndicator={false}
+        />
         </View>
       </SafeAreaView>
     </ScrollView>
@@ -127,5 +161,27 @@ const styles = StyleSheet.create({
   },
   weatherContainer: {
     padding: 20,
+  },
+  hourlyList: {
+    marginTop: 20,
+    marginBottom: 50,
+    
+  },
+  hourlyItem: {
+    alignItems: 'center',
+    marginHorizontal: 10,
+    backgroundColor: 'rgba(253, 71, 183, 0.23)',
+    padding: 10,
+    borderRadius: 20, 
+  },
+  hourlyTime: {
+    fontSize: 15,
+    fontFamily: 'DMSans',
+    marginBottom: 5,
+  },
+  hourlyTemp: {
+    fontSize: 22,
+    fontFamily: 'DMSans',
+    marginTop: 5,
   },
 });
