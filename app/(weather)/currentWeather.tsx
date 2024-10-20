@@ -3,7 +3,6 @@ import { StyleSheet, Text, View, SafeAreaView, ScrollView, ImageBackground, Acti
 import { getWeatherIcon } from '@/utils/weatherIcons';
 import { Fontisto } from '@expo/vector-icons';
 
-// Define the interface for the weather data
 interface WeatherData {
   time: Date;
   temperature2m: number;
@@ -99,11 +98,13 @@ const CurrentWeather = () => {
   return (
     <ScrollView style={styles.wrapper}>
       <SafeAreaView>
+        {/* Background images */}
         <View style={styles.imageRow}>
           <ImageBackground source={require('@/assets/images/Polygon1_1.png')} style={styles.sideImage} resizeMode="contain" />
           <ImageBackground source={require('@/assets/images/Polygon2_1.png')} style={styles.sideImage} resizeMode="contain" />
         </View>
         <View style={{alignItems: 'center', marginTop: 50}}>
+          {/* Time */}
           {weatherData ? (
             <Text style={{ fontSize: 18, fontFamily: 'DMSans' }}>
               Today {weatherData.time.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
@@ -111,7 +112,9 @@ const CurrentWeather = () => {
           ) : (
             <Text style={{ fontSize: 18, fontFamily: 'DMSans' }}>Today</Text>
           )}
+          {/* Icon for current weather */}
           <WeatherIcon width={130} height={130} />
+          {/* Temperature */}
           {weatherData ? (
             <Text style={{ fontSize: 40, fontFamily: 'DMSans', marginTop: 50}}>
               {weatherData.temperature2m}°C
@@ -119,6 +122,7 @@ const CurrentWeather = () => {
           ) : (
             <Text style={{ fontSize: 35, fontFamily: 'DMSans' }}>Not available</Text>
           )}
+          {/* Wind information */}
           <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 10 }}>
             <Fontisto name="wind" size={22} color='#4F8CAE' />
             <Text style={{ fontSize: 18, fontFamily: 'DMSans', marginLeft: 10 }}>
