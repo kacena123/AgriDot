@@ -9,8 +9,6 @@ import MyGuides from '@/app/(app)/(guides)/myGuides';
 import Guides from '@/app/(app)/(guides)/guides';
 
 
-
-
 const guides = () => {
   const TopTab = createMaterialTopTabNavigator();
   return (

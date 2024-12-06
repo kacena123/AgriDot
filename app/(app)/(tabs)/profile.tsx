@@ -1,4 +1,4 @@
-import { ScrollView, StyleSheet, Text, View, Image, ImageBackground, SafeAreaView, Modal, TextInput, TouchableOpacity } from 'react-native'
+import { ScrollView, StyleSheet, Text, View, Image, ImageBackground, SafeAreaView, Modal, TextInput, TouchableOpacity, ActivityIndicator } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import { StatusBar } from 'expo-status-bar'
 import { Link } from 'expo-router'
@@ -7,6 +7,7 @@ import { ApiPromise, WsProvider } from '@polkadot/api';
 import { Keyring } from '@polkadot/keyring';
 import { useSession } from '@/context/ctx';
 import { SecureStorage } from '@/services/secureStorage'
+import { FontAwesome6 } from '@expo/vector-icons'
 
 
 const profile = () => {
@@ -17,7 +18,10 @@ const profile = () => {
 
   const [showDonateModal, setShowDonateModal] = useState(false);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [showThankingModal, setShowThankingModal] = useState(false);
   const [donationAmount, setDonationAmount] = useState('1');
+
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     const fetchStoredPhrase = async () => {
@@ -29,6 +33,8 @@ const profile = () => {
   }, []);
 
   const donate = async () => {
+    setIsLoading(true);
+
     const wsProvider = new WsProvider('wss://asset-hub-paseo-rpc.dwellir.com');
     const api = await ApiPromise.create({ provider: wsProvider });
 
@@ -64,13 +70,15 @@ const profile = () => {
               setShowDonateModal(false);
               setShowConfirmModal(false);
               console.log("Transaction passed")
-              
+              setShowThankingModal(true);
             }
           }
         });
       });
     } catch (error) {
       console.error(error);
+    } finally {
+      setIsLoading(false);
     }
     
   }
@@ -138,6 +146,7 @@ const profile = () => {
                 />
               </View>
 
+        {/* Donate modal */}
         <Modal
           visible={showDonateModal}
           transparent={true}
@@ -180,6 +189,7 @@ const profile = () => {
           </View>
         </Modal>
 
+        {/* Confirm donation modal */}
         <Modal
           visible={showConfirmModal}
           transparent={true}
@@ -197,12 +207,55 @@ const profile = () => {
             
               <Text style={styles.modalTitle}>Confirm Donation</Text>
               <Text style={styles.modalText}>
-                Are you sure you want to donate {donationAmount} DOT?
+                {isLoading ? (
+                  <Text>Please wait while we process your donation...</Text>
+                  ) : (
+                    <Text>Are you sure you want to donate {donationAmount} DOT?</Text>
+                  )
+                }
               </Text>
               <View style={{paddingLeft: 50, paddingRight: 50}}>
+                {isLoading ? (
+                  <ActivityIndicator size="large" color="#FD47B7" />
+                ) : (
+                  <CustomButton 
+                    title="Approve"
+                    onPress={donate}
+                    containerStyles={{ height: 50}}
+                    textStyles={{ fontSize: 16 }}
+                  />
+                )}
+              </View>
+            </View>
+          </View>
+        </Modal>
+
+        {/* Thanking modal */}
+        <Modal
+          visible={showThankingModal}
+          transparent={true}
+          animationType="fade"
+        >
+          <View style={styles.modalOverlay}>
+            <View style={styles.modalContent}>
+            
+              <TouchableOpacity 
+                style={styles.closeButton}
+                onPress={() => setShowConfirmModal(false)}
+              >
+                <Text style={styles.closeButtonText}>×</Text>
+              </TouchableOpacity>
+            
+              <Text style={styles.modalTitle}>Thank you for your support 
+                <Text>  </Text>
+                <FontAwesome6 name="heart" size={24} color="#FD47B7" />
+              </Text>
+              <Text style={styles.modalText}>Your donation has been received.</Text>
+
+              <View style={{paddingLeft: 50, paddingRight: 50}}>
                 <CustomButton 
-                  title="Approve"
-                  onPress={donate}
+                  title="Close"
+                  onPress={() => setShowThankingModal(false)}
                   containerStyles={{ height: 50}}
                   textStyles={{ fontSize: 16 }}
                 />
