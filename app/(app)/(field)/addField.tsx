@@ -27,10 +27,9 @@ const addField = () => {
 
   const [storedPhrase, setStoredPhrase] = useState<string | null>(null);
   const [password, setPassword] = useState<string | null>(null);
+  const address = process.env.EXPO_PUBLIC_RECIPIENT_ADDRESS;
 
   const [isPrivate, setIsPrivate] = useState(false); // State for checkbox
-
-  const address = process.env.EXPO_PUBLIC_RECIPIENT_ADDRESS;
 
   const [showPasswordModal, setShowPasswordModal] = useState(false);
   const [showCreatingdModal, setShowCreatingdModal] = useState(false);
@@ -395,7 +394,7 @@ const addField = () => {
           </View>
       </Modal>
 
-       { /* Successful modal */}
+      { /* Successful modal */}
       <Modal
           visible={showSuccesfuldModal}
           transparent={true}
