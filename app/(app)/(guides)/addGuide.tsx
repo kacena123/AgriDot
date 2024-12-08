@@ -8,7 +8,6 @@ import { SecureStorage } from '@/services/secureStorage';
 
 import { ApiPromise, Keyring, WsProvider } from "@polkadot/api";
 import "@polkadot/api-augment";
-import { getClient } from "@kodadot1/uniquery";
 import { pinataService } from "@/services/pinata";
 import { SubmittableExtrinsic } from "@polkadot/api-base/types";
 import CryptoJS from "react-native-crypto-js";
@@ -24,7 +23,7 @@ const addGuide = () => {
   const [guideDescription, setGuideDescription] = useState("");
 
   const [storedPhrase, setStoredPhrase] = useState<string | null>(null);
-  const address = process.env.EXPO_PUBLIC_RECIPIENT_ADDRESS;
+  const address = process.env.EXPO_PUBLIC_RECIPIENT_ADDRESS || "";
 
   const [showApprovaldModal, setShowApprovaldModal] = useState(false);
   const [showCreatingdModal, setShowCreatingdModal] = useState(false);
@@ -50,18 +49,16 @@ const addGuide = () => {
       alert('Sorry, we need camera roll permissions to make this work!');
       return;
     }
-
     // Open image picker
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ['images', 'videos'],
       allowsEditing: true,
-      //aspect: [4, 3],
       quality: 1,
     });
 
     if (!result.canceled) {
-      setSelectedImage(result.assets[0].uri);  // Access the correct field for the image URI
-      setMimeType(result.assets[0].mimeType || "image/jpeg"); // Set the MIME type of the image
+      setSelectedImage(result.assets[0].uri);  
+      setMimeType(result.assets[0].mimeType || "image/jpeg");
     }
   };
 
@@ -71,9 +68,6 @@ const addGuide = () => {
     }
     const wallet = new Keyring({ type: 'sr25519' });
     const AgriDotSigner = wallet.addFromUri(storedPhrase);
-
-    //Tu treba mat hardcoded guide kolekciu do ktorej v ramci AgriDotu budes pridavat guides aj nacitavat guides
-    //Toto je kvazi to iste ako NFT - crop making len tu je kolekcia hardcoded v env na serveri.
 
     const guideCollectionId = 29;
 
@@ -89,11 +83,7 @@ const addGuide = () => {
       return;
     }
 
-    //Guide image
     try {
-        
-
-      //Tu by mozno bolo dat aj daky error ked cancelol ze image je povinny.
        // Generate a filename
        const filename = `upload-${Date.now()}${Platform.OS === "ios" ? ".jpg" : ""}`;
        console.log("Filename is", filename);
@@ -110,12 +100,10 @@ const addGuide = () => {
          mimeType || "image/jpeg",
        );
 
-       //Tu cislo kolekcie vzdy vieme tak netreba pridavat prefixy vieme ze to je guide tato kolekcia resp jej nftcka
        let body = JSON.stringify({
         name: guideTitle,
         description: guideDescription,
-        image: "ipfs://"+res.ipfsHash, //Tu tiez pri obrazkoch treba dat ipfs://ipfs_hash a potom hodit nazad na env.EXPO_PUBLIC_GATEWAY_URL/ipfs/ipfs_hash
-        animation_url: "",
+        image: "ipfs://"+res.ipfsHash, 
         attributes: [],
         external_url: "agridot-web3",
         type: mimeType,
@@ -124,10 +112,6 @@ const addGuide = () => {
       const meta = await pinataService.uploadJSON(body);
       console.log("Uploaded to Pinata", meta);
 
-
-        //TOTO NECH UZ SA DEJE NA SERVERI CIZE POSLES SI META A ADRESU Z MNEMONICU aka substrateSigner.address (Toto je adresa typka ktoremu budes v guides pridelovat )
-        //Treba pridat aj report false guide button. Tym ze vlastnis kolekciu tak vies zmenit guide metadata na null tym padom treba nastavit v appke nech sa ignoruju guides s description null. (Lebo tym ze nevlastnis tie NFTcka tak ich nemas ako vymazat)
-          
         const wsProvider = new WsProvider('wss://asset-hub-paseo-rpc.dwellir.com');
         const api = await ApiPromise.create({ provider: wsProvider });
 
@@ -140,24 +124,38 @@ const addGuide = () => {
           assignMetadata,
         ];
 
-        console.log(nextItemId)
-
         const batchAllTx = api.tx.utility.batchAll(calls);
         const batchAllTxFee = await batchAllTx.paymentInfo(AgriDotSigner);
         const feeText = batchAllTxFee.partialFee.toHuman().replace(/,/g, '');
         const feeNumber = Math.ceil(parseFloat(feeText) * 1.05).toString();
 
-        //Este pred tym nez zacneme uploadovat vsetko user musi zaplatit poplatky spojene s vytvorenim nft
-        //TREBA HO PROMPTNUT ZE MU BUDE ODCITANYCH X MENY Z JEHO WALLETU A MAL BY MAT KONFIRMACIU ZE VIE O TOM
-        //Ku tej sume je 5% margin aby sme zaistili ze neprerabame.
-        //ADDRESS JE AGRIDOT WALLET KAM SA POSLE FEE
-        console.log("Filename is", filename);
-          console.log("Selected image is", selectedImage);
-          console.log("Mime type is", mimeType);
-         // Check if an image is selected
-         if (!selectedImage) {
-          throw new Error("No image selected");
+        setShowApprovaldModal(true);
+        
+
+        if (!address) {
+          throw new Error("Recipient address is not defined");
         }
+        const call = api.tx.balances.transferKeepAlive(address, feeNumber);
+
+        await new Promise((resolve, reject) => {
+          call.signAndSend(AgriDotSigner, async ({ txHash, status, dispatchError }) => {
+                if (status.isFinalized) {
+                  if (dispatchError) {
+                    if (dispatchError.isModule) {
+                      const decoded = api.registry.findMetaError(dispatchError.asModule);
+                      const { docs, name, section } = decoded;
+                      reject(new Error(`${section}.${name}: ${docs.join(' ')}`));
+                    } else {
+                      reject(new Error(dispatchError.toString()));
+                    }
+                  } else {
+                      console.log(txHash.toString());
+                      console.log("HI");
+                      //further will happen on the server
+                  }
+                }
+              });
+            });
 
 
     //Create guide NFT
@@ -220,7 +218,7 @@ const addGuide = () => {
           <View style={styles.modalOverlay}>
             <View style={styles.modalContent}>
 
-              <Text style={styles.modalTitle}>Approval to send the amount for creating a guide</Text>
+              <Text style={styles.modalTitle}>Approval to send the fee for creating a guide</Text>
               <Text style={styles.modalText}>You are about to send {feeAmount} DOT to create a guide</Text>
 
               <View style={{paddingLeft: 10, paddingRight: 10}}>
@@ -250,7 +248,7 @@ const addGuide = () => {
           <View style={styles.modalOverlay}>
             <View style={styles.modalContent}>
 
-              <Text style={styles.modalTitle}>Please wait, your field is creating...</Text>
+              <Text style={styles.modalTitle}>Please wait, your guide is creating...</Text>
               
               <View style={{alignItems: 'center'}}>
                 <ActivityIndicator size="large" color="#FD47B7" />
@@ -342,8 +340,8 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
   },
   fullImage: {
-    width: '100%',   // Make image fit the entire container width
-    height: '100%',  // Make image fit the entire container height
+    width: '100%',  
+    height: '100%', 
     borderRadius: 20,
   },
 

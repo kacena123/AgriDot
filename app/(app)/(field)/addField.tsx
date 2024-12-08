@@ -10,7 +10,6 @@ import Checkbox from 'expo-checkbox';
 
 import { ApiPromise, Keyring, WsProvider } from "@polkadot/api";
 import "@polkadot/api-augment";
-import { getClient } from "@kodadot1/uniquery";
 import { pinataService } from "@/services/pinata";
 import { SubmittableExtrinsic } from "@polkadot/api-base/types";
 import CryptoJS from "react-native-crypto-js";
@@ -29,7 +28,7 @@ const addField = () => {
   const [password, setPassword] = useState<string | null>(null);
   const address = process.env.EXPO_PUBLIC_RECIPIENT_ADDRESS;
 
-  const [isPrivate, setIsPrivate] = useState(false); // State for checkbox
+  const [isPrivate, setIsPrivate] = useState(false); 
 
   const [showPasswordModal, setShowPasswordModal] = useState(false);
   const [showCreatingdModal, setShowCreatingdModal] = useState(false);
@@ -57,18 +56,16 @@ const addField = () => {
       alert('Sorry, we need camera roll permissions to make this work!');
       return;
     }
-
     // Open image picker
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ['images', 'videos'],
       allowsEditing: true,
-      //aspect: [4, 3],
       quality: 1,
     });
 
     if (!result.canceled) {
-      setSelectedImage(result.assets[0].uri);  // Access the correct field for the image URI
-      setMimeType(result.assets[0].mimeType || "image/jpeg"); // Set the MIME type of the image
+      setSelectedImage(result.assets[0].uri);  
+      setMimeType(result.assets[0].mimeType || "image/jpeg"); 
     }
   };
 
@@ -80,7 +77,6 @@ const addField = () => {
       alert('Permission to access location was denied');
       return;
     }
-
     // Get current location
     let location = await Location.getCurrentPositionAsync({});
     setLatitude(location.coords.latitude.toString());
@@ -105,10 +101,8 @@ const addField = () => {
     }
     const wallet = new Keyring({ type: 'sr25519' });
     const AgriDotSigner = wallet.addFromUri(storedPhrase);
-    //const password = "password";
 
     console.log("creating field");
-
         //Choose field name
         if (fieldName === "" || fieldName === null || fieldName === undefined) {
           console.log("Field name is required");
@@ -131,13 +125,6 @@ const addField = () => {
 
         //Upload the details to IPFS
         try {
-
-        // //Tu by mozno bolo dat aj daky error ked cancelol ze image je povinny.
-        // if (!result.canceled && result.assets && result.assets.length > 0) {
-        //   console.log('Selected image:', result.assets[0].uri);
-
-        //  const { uri, mimeType } = result.assets[0];
-
          // Generate a filename
          const filename = `upload-${Date.now()}${Platform.OS === "ios" ? ".jpg" : ""}`;
           console.log("Filename is", filename);
@@ -157,7 +144,7 @@ const addField = () => {
           let body = JSON.stringify({
             name: fieldName,
             description: latitude + " " + longitude,
-            image: "ipfs://"+res.ipfsHash, //Tu tiez pri obrazkoch treba dat ipfs://ipfs_hash a potom hodit nazad na env.EXPO_PUBLIC_GATEWAY_URL/ipfs/ipfs_hash
+            image: "ipfs://"+res.ipfsHash, 
             animation_url: "",
             attributes: [],
             external_url: "agridot-web3",
@@ -171,8 +158,8 @@ const addField = () => {
               return;
             }
 
-            const description = latitude + " " + longitude; // Message to hash
-            const img = "ipfs://" + res.ipfsHash; // Image URL
+            const description = latitude + " " + longitude; 
+            const img = "ipfs://" + res.ipfsHash; 
             const name = fieldName;
             const type = mimeType || '';
 
@@ -233,10 +220,6 @@ const addField = () => {
           const nextCollectionId = await api.query.nfts.nextCollectionId();
           const collectionId = nextCollectionId.unwrap().toNumber();
 
-          //Tu potom pozor, konvencia je ipfs://ipfs_hash alebo ipfs://ipfs/ipfs_hash cize ked budes chciet fetchovat tak musis vzdy ze ak zacina ipfs:// tak nahradit za env.EXPO_PUBLIC_GATEWAY_URL/ipfs
-          //Cize ipfs://QmZx2dKpyyAQNLLujYAktEeUdejC83VjJaC312K6QkRR6p
-          //Na https://apricot-accurate-leech-751.mypinata.cloud/ipfs/QmZx2dKpyyAQNLLujYAktEeUdejC83VjJaC312K6QkRR6p
-        
           const asignMeta = api.tx.nfts.setCollectionMetadata(collectionId, "ipfs://"+meta.ipfsHash);
 
           const calls: SubmittableExtrinsic<"promise">[] = [
@@ -270,7 +253,6 @@ const addField = () => {
         } catch (error) {
           console.log(error);
       }
-        //Convert result into file
   };
 
   return (
@@ -311,16 +293,16 @@ const addField = () => {
         style={styles.input}
         placeholder="Enter field latitude"
         placeholderTextColor="#666"
-        value={latitude} // Update TextInput with latitude
-        onChangeText={setLatitude} // Update latitude with TextInput value
+        value={latitude} 
+        onChangeText={setLatitude} 
       />
       <Text style={{ fontFamily: 'DMSans', fontSize: 16 }}>Longitude:</Text>
       <TextInput
         style={styles.input}
         placeholder="Enter field longitude"
         placeholderTextColor="#666"
-        value={longitude} // Update TextInput with longitude
-        onChangeText={setLongitude} // Update longitude with TextInput value
+        value={longitude} 
+        onChangeText={setLongitude} 
       />
       {/* Use My Location button */}
       <CustomButton 
@@ -471,8 +453,8 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
   },
   fullImage: {
-    width: '100%',   // Make image fit the entire container width
-    height: '100%',  // Make image fit the entire container height
+    width: '100%',   
+    height: '100%',
     borderRadius: 20,
   },
   checkboxContainer: {

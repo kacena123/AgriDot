@@ -9,7 +9,6 @@ import * as ImagePicker from 'expo-image-picker';
 import { SecureStorage } from '@/services/secureStorage';
 import { ApiPromise, Keyring, WsProvider } from "@polkadot/api";
 import "@polkadot/api-augment";
-import { getClient } from "@kodadot1/uniquery";
 import { pinataService } from "@/services/pinata";
 import { SubmittableExtrinsic } from "@polkadot/api-base/types";
 import CryptoJS from "react-native-crypto-js";
@@ -63,18 +62,16 @@ const addCrop = () => {
       alert('Sorry, we need camera roll permissions to make this work!');
       return;
     }
-
     // Open image picker
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ['images', 'videos'],
       allowsEditing: true,
-      //aspect: [4, 3],
       quality: 1,
     });
 
     if (!result.canceled) {
-      setSelectedImage(result.assets[0].uri);  // Access the correct field for the image URI
-      setMimeType(result.assets[0].mimeType || "image/jpeg"); // Set the MIME type of the image
+      setSelectedImage(result.assets[0].uri); 
+      setMimeType(result.assets[0].mimeType || "image/jpeg"); 
     }
   };
 
@@ -88,10 +85,8 @@ const addCrop = () => {
 
     console.log("creating crop");
 
-    //Get field collection ID (Pass it from the UI)
-    //Na teraz hardkodnem
-    const fieldCollectionId = 29; //Vytiahneme z metadat fieldu ktory si pouzivatel zvoli (Ked nan klikne posles si do druheho komponentu jeho id z metadat)
-    const privateCol = true; //Tiez sa zisti z metadat kolekcie.
+    const fieldCollectionId = 29; 
+    const privateCol = true; 
 
 
     //Choose crop name
@@ -105,16 +100,8 @@ const addCrop = () => {
       return;
     }
 
-    
-    //Add crop photo
         //Upload the details to IPFS
         try {
-        
-          //Load image from the device
-          
-
-          //Tu by mozno bolo dat aj daky error ked cancelol ze image je povinny.
-  
            // Generate a filename
            const filename = `upload-${Date.now()}${Platform.OS === "ios" ? ".jpg" : ""}`;
            console.log("Filename is", filename);
@@ -134,21 +121,20 @@ const addCrop = () => {
            let body = JSON.stringify({
             name: cropName,
             description: date.toLocaleDateString(),
-            image: "ipfs://"+res.ipfsHash, //Tu tiez pri obrazkoch treba dat ipfs://ipfs_hash a potom hodit nazad na env.EXPO_PUBLIC_GATEWAY_URL/ipfs/ipfs_hash
+            image: "ipfs://"+res.ipfsHash, 
             animation_url: "",
             attributes: [],
             external_url: "agridot-web3",
             type: mimeType,
           });
 
-        //See if field is private (Ma privatny tag [Private] v hashoch) (If private then create private crops else create public crops)
         if (privateCol) {
           if (!password) {
             throw new Error("Password is required for private collections");
           }
 
-          const description = date.toLocaleDateString(); // Message to hash
-          const img = "ipfs://" + res.ipfsHash; // Image URL
+          const description = date.toLocaleDateString(); 
+          const img = "ipfs://" + res.ipfsHash; 
           const name = cropName;
           const type = mimeType || '';
 
@@ -195,10 +181,8 @@ const addCrop = () => {
             const api = await ApiPromise.create({ provider: wsProvider });
 
             let nextItemId = 0;
-
             //Get next empty item id:
               try {
-            
                 const items = await api.query.nfts.item.entries(fieldCollectionId.toString());
                 const formattedItems = items.map(([key, value]) => {
                   const itemId = key.args.map(arg => arg.toHuman());
@@ -246,8 +230,6 @@ const addCrop = () => {
                 }
               });
             });
-
-
         //Create crop NFT
       } catch (error) {
         console.log(error);
@@ -295,8 +277,8 @@ const addCrop = () => {
             mode="date"
             display="default"
             onChange={onChange}
-            themeVariant="light"  // Ensure it's light theme (or you can use 'dark' based on preference)
-            accentColor="#145E2F" // Set the accent color to green
+            themeVariant="light"  
+            accentColor="#145E2F" 
           />
         )}
       </View>
@@ -419,8 +401,8 @@ const styles = StyleSheet.create({
       color: '#000',
     },
     fullImage: {
-      width: '100%',   // Make image fit the entire container width
-      height: '100%',  // Make image fit the entire container height
+      width: '100%',  
+      height: '100%', 
       borderRadius: 20,
     },
 
