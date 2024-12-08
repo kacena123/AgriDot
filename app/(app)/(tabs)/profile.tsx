@@ -15,10 +15,17 @@ const profile = () => {
   const { signOut } = useSession();
 
   const [storedPhrase, setStoredPhrase] = useState<string | null>(null);
+  const [password, setPassword] = useState<string | null>(null);
 
   const [showDonateModal, setShowDonateModal] = useState(false);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [showThankingModal, setShowThankingModal] = useState(false);
+  const [showPasswordModal, setShowPasswordModal] = useState(false);
+  const [showChangePasswordModal, setShowChangePasswordModal] = useState(false);
+  const [showChangePasswordModalSuccess, setShowChangePasswordModalSuccess] = useState(false);
+
+  const [newPassword, setNewPassword] = useState('');
+  const [oldPassword, setOldPassword] = useState('');
   const [donationAmount, setDonationAmount] = useState('1');
 
   const [isLoading, setIsLoading] = useState(false);
@@ -27,8 +34,9 @@ const profile = () => {
     const fetchStoredPhrase = async () => {
       const phrase = await SecureStorage.getSecretPhrase();
       setStoredPhrase(phrase);
+      const password = await SecureStorage.getSecretPassword();
+      setPassword(password);
     };
-
     fetchStoredPhrase();
   }, []);
 
@@ -43,6 +51,9 @@ const profile = () => {
 
     const amount = Math.floor(parseFloat(donationAmount) * 10000000000);
 
+    if (!address) {
+      throw new Error("Recipient address is not defined in the environment variables");
+    }
     const call = api.tx.balances.transferKeepAlive(address, amount);
 
     
@@ -83,7 +94,28 @@ const profile = () => {
     
   }
 
-  
+  const handlePasswordChange = async () => {
+    if (oldPassword !== password) {
+      alert('Old password is incorrect');
+      return;
+    }
+    else {
+      if (newPassword) {
+        await SecureStorage.updateSecretPassword(newPassword);
+        setPassword(newPassword);
+        setShowChangePasswordModal(false);
+        setShowChangePasswordModalSuccess(true);
+      }
+    }
+  }
+  const handlePasswordSet = async () => {
+    if (newPassword) {
+      await SecureStorage.updateSecretPassword(newPassword);
+      setPassword(newPassword);
+      setShowPasswordModal(false);
+      setShowChangePasswordModalSuccess(true);
+    }
+  }
 
   return (
     <ScrollView style={styles.wrapper}>
@@ -135,13 +167,19 @@ const profile = () => {
                   containerStyles={{ height: 55, marginTop: 10 }}
                   textStyles={{ fontSize: 18, fontFamily: 'DMSans' }}
                 />
+                <CustomButton
+                  title={password ? 'Change password' : 'Set password'}
+                  onPress={() => password ? setShowChangePasswordModal(true) : setShowPasswordModal(true)}
+                  containerStyles={{ backgroundColor: '#145E2F', height: 55, marginTop: 10 }}
+                  textStyles={{ fontSize: 18, fontFamily: 'DMSans' }}
+                />
                 <CustomButton 
                   title='Log out' 
                   onPress={() => {
                     console.log('logout');
                     signOut();
                   }} 
-                  containerStyles={{ backgroundColor: '#145E2F', height: 55, marginTop: 30 }}
+                  containerStyles={{ backgroundColor: '#145E2F', height: 55, marginTop: 10, marginBottom: 20 }}
                   textStyles={{ fontSize: 18, fontFamily: 'DMSans' }}
                 />
               </View>
@@ -264,6 +302,124 @@ const profile = () => {
           </View>
         </Modal>
 
+        {/* Set Password modal */}
+        <Modal
+          visible={showPasswordModal}
+          transparent={true}
+          animationType="fade"
+        >
+          <View style={styles.modalOverlay}>
+            <View style={styles.modalContent}>
+              
+              {/* Close button */}
+              <TouchableOpacity 
+                style={styles.closeButton}
+                onPress={() => setShowPasswordModal(false)}
+              >
+                <Text style={styles.closeButtonText}>×</Text>
+              </TouchableOpacity>
+
+              <Text style={styles.modalTitle}>{'Set Password'}</Text>
+              <Text style={styles.modalText}>Enter your new password to hash your private fields and crops:</Text>
+
+              <TextInput
+                style={styles.input}
+                value={newPassword}
+                onChangeText={setNewPassword}
+                secureTextEntry
+                placeholder="New Password"
+              />
+              
+              <View style={{paddingLeft: 50, paddingRight: 50}}>
+                <CustomButton 
+                  title="Save"
+                  onPress={handlePasswordSet}
+                  containerStyles={{ height: 50,}}
+                  textStyles={{ fontSize: 18 }}
+                />
+              </View>
+            </View>
+          </View>
+        </Modal>
+
+        {/* Change Password modal */}
+        <Modal
+          visible={showChangePasswordModal}
+          transparent={true}
+          animationType="fade"
+        >
+          <View style={styles.modalOverlay}>
+            <View style={styles.modalContent}>
+              
+              {/* Close button */}
+              <TouchableOpacity 
+                style={styles.closeButton}
+                onPress={() => setShowChangePasswordModal(false)}
+              >
+                <Text style={styles.closeButtonText}>×</Text>
+              </TouchableOpacity>
+
+              <Text style={styles.modalTitle}>{'Change Password'}</Text>
+              <Text style={styles.modalTextWarning}>WARNING: If you change your password, your private fields and crops created before changing your password will not be displayed correctly, you will lose this data.</Text>
+              <Text style={styles.modalText}>Enter your current and new password to hash your private fields and crops:</Text>
+              <TextInput
+                style={styles.input}
+                value={oldPassword}
+                onChangeText={setOldPassword}
+                secureTextEntry
+                placeholder="Current Password"
+              />
+              <TextInput
+                style={styles.input}
+                value={newPassword}
+                onChangeText={setNewPassword}
+                secureTextEntry
+                placeholder="New Password"
+              />
+              
+              <View style={{paddingLeft: 50, paddingRight: 50}}>
+                <CustomButton 
+                  title="Save"
+                  onPress={handlePasswordChange}
+                  containerStyles={{ height: 50,}}
+                  textStyles={{ fontSize: 18 }}
+                />
+              </View>
+            </View>
+          </View>
+        </Modal>
+
+        {/* Change Password modal successful */}
+        <Modal
+          visible={showChangePasswordModalSuccess}
+          transparent={true}
+          animationType="fade"
+        >
+          <View style={styles.modalOverlay}>
+            <View style={styles.modalContent}>
+              
+              {/* Close button */}
+              <TouchableOpacity 
+                style={styles.closeButton}
+                onPress={() => setShowChangePasswordModalSuccess(false)}
+              >
+                <Text style={styles.closeButtonText}>×</Text>
+              </TouchableOpacity>
+
+              <Text style={styles.modalTitle}>Your password was successfully changed</Text>
+              
+              <View style={{paddingLeft: 50, paddingRight: 50}}>
+                <CustomButton 
+                  title="Close"
+                  onPress={() => setShowChangePasswordModalSuccess(false)}
+                  containerStyles={{ height: 50,}}
+                  textStyles={{ fontSize: 18 }}
+                />
+              </View>
+            </View>
+          </View>
+        </Modal>
+
       <StatusBar style="light" backgroundColor='#145E2F'/>
     </SafeAreaView>
     </ScrollView>
@@ -348,6 +504,13 @@ const styles = StyleSheet.create({
     fontFamily: 'DMSans',
     marginBottom: 15,
     textAlign: 'center',
+  },
+  modalTextWarning: {
+    fontSize: 16,
+    fontFamily: 'DMSans',
+    marginBottom: 15,
+    textAlign: 'center',
+    color: 'red',
   },
   input: {
     borderWidth: 1,

@@ -35,7 +35,7 @@ const LogInScreen = () => {
 
   const handleSavePhrase = async () => {
     const words = secretPhrase.trim().split(' ');
-    if (words.length < 12 || words.length > 24) {
+    if (words.length == 12 || words.length == 24) {
       alert('Please enter exactly 12 to 24 words');
       return;
     }
