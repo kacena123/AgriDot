@@ -1,8 +1,6 @@
-# Agridot - Web3 Mobile dApp for Farmers 🧑‍🌾
+# <img width="150" alt="Agridot_logo" src="https://github.com/user-attachments/assets/c906eba6-8122-4f3b-83f5-8ecb04f326ef"> Web3 Mobile dApp for Farmers 🧑‍🌾
 
-[AGRIDOT LOGO]
-
-[Official AgriDot documentation](LINK)
+[Official AgriDot documentation](https://kacena123.github.io/agridot-docs/)
 
 ## What is AgriDot?
 AgriDot is a blockchain-based application that enables farmers to manage their fields, crops they grow on them, track pests, monitor weather in their fields, and share valuable insights through a decentralized, transparent system. By integrating agriculture into the Polkadot ecosystem, AgriDot introduces a pioneering use case for blockchain in farming. The platform is fully open-source and prioritizes user privacy, eliminating the need for centralized databases.
