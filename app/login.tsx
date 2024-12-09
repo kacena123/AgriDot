@@ -35,8 +35,8 @@ const LogInScreen = () => {
 
   const handleSavePhrase = async () => {
     const words = secretPhrase.trim().split(' ');
-    if (words.length == 12 || words.length == 24) {
-      alert('Please enter exactly 12 to 24 words');
+    if (words.length !== 12 && words.length !== 24) {
+      alert('Please enter exactly 12 or 24 words');
       return;
     }
 
@@ -108,7 +108,7 @@ const LogInScreen = () => {
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
             <Text style={styles.title}>Enter Secret Key</Text>
-            <Text style={styles.subtitle}>Please enter your 12-24 word secret key of your wallet</Text>
+            <Text style={styles.subtitle}>Please enter your 12 or 24 word secret key of your wallet</Text>
 
             <TextInput
               style={styles.input}
