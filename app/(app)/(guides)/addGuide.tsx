@@ -31,7 +31,6 @@ const addGuide = () => {
   const [showSuccesfuldModal, setShowSuccesfuldModal] = useState(false);
 
   const [feeAmount, setFeeAmount] = useState(0);
-  //const [approveTransaction, setApproveTransaction] = useState<null | boolean>(null);
   const [approvalHandlers, setApprovalHandlers] = useState<{
     handleApprove: () => void;
     handleReject: () => void;
@@ -166,11 +165,8 @@ const addGuide = () => {
         }
         
         console.log("Transaction approved");
-        setShowTransactionModal(true)
+        setShowTransactionModal(true);
 
-        if (!address) {
-          throw new Error("Recipient address is not defined");
-        }
         const call = api.tx.balances.transferKeepAlive(address, feeNumber);
 
         //Encrypt metadata for secure communication

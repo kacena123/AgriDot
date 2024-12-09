@@ -38,6 +38,10 @@ const addPest = () => {
     const [showSuccesfuldModal, setShowSuccesfuldModal] = useState(false);
 
     const [feeAmount, setFeeAmount] = useState(0);
+    const [approvalHandlers, setApprovalHandlers] = useState<{
+      handleApprove: () => void;
+      handleReject: () => void;
+    } | null>(null);
 
   // Fetch the stored secret phrase
   useEffect(() => {
@@ -68,6 +72,25 @@ const addPest = () => {
       setSelectedImage(result.assets[0].uri);  
       setMimeType(result.assets[0].mimeType || "image/jpeg"); 
     }
+  };
+
+  // Function to wait for user approval
+  const waitForApproval = () => {
+    return new Promise<boolean>((resolve) => {
+      setShowApprovalModal(true);
+      
+      const handleApprove = () => {
+        setShowApprovalModal(false);
+        resolve(true);
+      };
+  
+      const handleReject = () => {
+        setShowApprovalModal(false);
+        resolve(false);
+      };
+  
+      setApprovalHandlers({ handleApprove, handleReject });
+    });
   };
 
   const handlePestReport = async () => {
@@ -107,23 +130,22 @@ const addPest = () => {
       console.log("Mime type is", mimeType);
       // Check if an image is selected
       if (!selectedImage) {
-      throw new Error("No image selected");
+        throw new Error("No image selected");
       }
- 
-       // Upload to Pinata
-       const res = await pinataService.uploadFile(
-         selectedImage,
-         filename,
-         mimeType || "image/jpeg",
-       );
+      // Upload to Pinata
+      const res = await pinataService.uploadFile(
+        selectedImage,
+        filename,
+        mimeType || "image/jpeg",
+      );
        
-       const description = '[Location]' +latitude + " " + longitude + '[Description]' + pestDescription; 
-       const img = "ipfs://" + res.ipfsHash; 
-       const name = pestName;
-       const type = mimeType || '';
+      const description = '[Location]' +latitude + " " + longitude + '[Description]' + pestDescription; 
+      const img = "ipfs://" + res.ipfsHash; 
+      const name = pestName;
+      const type = mimeType || '';
 
-       let body = JSON.stringify({
-        name: pestName,
+      let body = JSON.stringify({
+        name: name,
         description: description,
         image: img, 
         animation_url: "",
@@ -134,6 +156,7 @@ const addPest = () => {
 
 
       const meta = await pinataService.uploadJSON(body);
+      console.log("Uploaded to Pinata", meta);
 
       const fetchedData = await fetch(meta.pinataUrl);
       const data = await fetchedData.json();
@@ -142,7 +165,6 @@ const addPest = () => {
         const api = await ApiPromise.create({ provider: wsProvider });
 
         let nextItemId = 0;
-
         const create = api.tx.nfts.mint(pestCollectionId,nextItemId, AgriDotSigner.address, null);
         const assignMetadata = api.tx.nfts.setMetadata(pestCollectionId,nextItemId, "ipfs://"+meta.ipfsHash);
 
@@ -151,22 +173,33 @@ const addPest = () => {
           assignMetadata,
         ];
 
-        console.log(nextItemId)
-
         const batchAllTx = api.tx.utility.batchAll(calls);
         const batchAllTxFee = await batchAllTx.paymentInfo(AgriDotSigner);
         const feeText = batchAllTxFee.partialFee.toHuman().replace(/,/g, '');
         const feeNumber = Math.ceil(parseFloat(feeText) * 1.05).toString();
 
-        if (!address) {
-          throw new Error("Recipient address is not defined");
+        setFeeAmount(Number(feeNumber) / 1000000000);
+
+        // Wait for user approval to send the fee
+        const userApproval = await waitForApproval();
+
+        if (!userApproval) {
+          setShowCreatingdModal(false)
+          console.log("Transaction rejected");
+          return;
         }
-        const callFee = await api.tx.balances.transferKeepAlive(address, feeNumber).paymentInfo(AgriDotSigner);
-        const feeTextCall = callFee.partialFee.toHuman().replace(/,/g, '');
-        const feeNumberCall = Math.ceil(parseFloat(feeTextCall) * 1.05).toString();
-  
-        const call = api.tx.balances.transferKeepAlive(address, feeNumberCall+feeNumber);
         
+        console.log("Transaction approved");
+        setShowTransactionModal(true)
+  
+        const call = api.tx.balances.transferKeepAlive(address, feeNumber);
+        
+        //Encrypt metadata for secure communication
+        if (!process.env.EXPO_PUBLIC_ENCRYPT_PHRASE) {
+          throw new Error("EXPO_PUBLIC_ENCRYPT_PHRASE is not defined in the environment variables");
+        }
+        const encryptedMeta = CryptoJS.AES.encrypt('ipfs://'+meta.ipfsHash, process.env.EXPO_PUBLIC_ENCRYPT_PHRASE).toString();
+
         await new Promise((resolve, reject) => {
               call.signAndSend(AgriDotSigner, async ({ txHash, status, dispatchError }) => {
                 if (status.isFinalized) {
@@ -181,6 +214,8 @@ const addPest = () => {
                   } else {
                       console.log(txHash.toString());
                       console.log("HI");
+                      setShowTransactionModal(false);
+                      setShowCreatingdModal(true)
                       //further will happen on the server
                   }
                 }
@@ -268,13 +303,13 @@ const addPest = () => {
               <View style={{paddingLeft: 10, paddingRight: 10}}>
               <CustomButton 
                   title="Reject"
-                  onPress={() => {setShowApprovalModal(false)}}
+                  onPress={() => {approvalHandlers?.handleReject()}}
                   containerStyles={{ height: 50, backgroundColor: '#145E2F' }}
                   textStyles={{ fontSize: 16 }}
                 />
                 <CustomButton 
                   title="Approve"
-                  onPress={() => {}}
+                  onPress={() => {approvalHandlers?.handleApprove()}}
                   containerStyles={{ height: 50 }}
                   textStyles={{ fontSize: 16 }}
                 />
@@ -311,7 +346,6 @@ const addPest = () => {
             <View style={styles.modalContent}>
 
               <Text style={styles.modalTitle}>Please wait, your pest is creating...</Text>
-              <Text style={styles.modalText}>The transaction was successful.</Text>
               
               <View style={{alignItems: 'center'}}>
                 <ActivityIndicator size="large" color="#FD47B7" />
