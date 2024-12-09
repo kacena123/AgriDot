@@ -26,10 +26,16 @@ const addGuide = () => {
   const address = process.env.EXPO_PUBLIC_RECIPIENT_ADDRESS || "";
 
   const [showApprovaldModal, setShowApprovaldModal] = useState(false);
+  const [showTransactionModal, setShowTransactionModal] = useState(false);
   const [showCreatingdModal, setShowCreatingdModal] = useState(false);
   const [showSuccesfuldModal, setShowSuccesfuldModal] = useState(false);
 
   const [feeAmount, setFeeAmount] = useState(0);
+  //const [approveTransaction, setApproveTransaction] = useState<null | boolean>(null);
+  const [approvalHandlers, setApprovalHandlers] = useState<{
+    handleApprove: () => void;
+    handleReject: () => void;
+  } | null>(null);
 
   // Fetch the stored secret phrase
   useEffect(() => {
@@ -60,6 +66,25 @@ const addGuide = () => {
       setSelectedImage(result.assets[0].uri);  
       setMimeType(result.assets[0].mimeType || "image/jpeg");
     }
+  };
+
+  // Function to wait for user approval
+  const waitForApproval = () => {
+    return new Promise<boolean>((resolve) => {
+      setShowApprovaldModal(true);
+      
+      const handleApprove = () => {
+        setShowApprovaldModal(false);
+        resolve(true);
+      };
+  
+      const handleReject = () => {
+        setShowApprovaldModal(false);
+        resolve(false);
+      };
+  
+      setApprovalHandlers({ handleApprove, handleReject });
+    });
   };
 
   const handleGuideCreate = async () => {
@@ -129,14 +154,31 @@ const addGuide = () => {
         const feeText = batchAllTxFee.partialFee.toHuman().replace(/,/g, '');
         const feeNumber = Math.ceil(parseFloat(feeText) * 1.05).toString();
 
-        setShowApprovaldModal(true);
+        setFeeAmount(Number(feeNumber)/1000000000);
+
+        // Wait for user approval to send the fee
+        const userApproval = await waitForApproval();
+
+        if (!userApproval) {
+          setShowCreatingdModal(false)
+          console.log("Transaction rejected");
+          return;
+        }
         
+        console.log("Transaction approved");
+        setShowTransactionModal(true)
 
         if (!address) {
           throw new Error("Recipient address is not defined");
         }
         const call = api.tx.balances.transferKeepAlive(address, feeNumber);
 
+        //Encrypt metadata for secure communication
+        if (!process.env.EXPO_PUBLIC_ENCRYPT_PHRASE) {
+          throw new Error("EXPO_PUBLIC_ENCRYPT_PHRASE is not defined in the environment variables");
+        }
+        const encryptedMeta = CryptoJS.AES.encrypt('ipfs://'+meta.ipfsHash, process.env.EXPO_PUBLIC_ENCRYPT_PHRASE).toString();
+        
         await new Promise((resolve, reject) => {
           call.signAndSend(AgriDotSigner, async ({ txHash, status, dispatchError }) => {
                 if (status.isFinalized) {
@@ -151,6 +193,8 @@ const addGuide = () => {
                   } else {
                       console.log(txHash.toString());
                       console.log("HI");
+                      setShowTransactionModal(false);
+                      setShowCreatingdModal(true)
                       //further will happen on the server
                   }
                 }
@@ -224,16 +268,34 @@ const addGuide = () => {
               <View style={{paddingLeft: 10, paddingRight: 10}}>
               <CustomButton 
                   title="Reject"
-                  onPress={() => {setShowApprovaldModal(false)}}
+                  onPress={() => {approvalHandlers?.handleReject()}}
                   containerStyles={{ height: 50, backgroundColor: '#145E2F' }}
                   textStyles={{ fontSize: 16 }}
                 />
                 <CustomButton 
                   title="Approve"
-                  onPress={() => {}}
+                  onPress={() => {approvalHandlers?.handleApprove()}}
                   containerStyles={{ height: 50 }}
                   textStyles={{ fontSize: 16 }}
                 />
+              </View>
+            </View>
+          </View>
+      </Modal>
+
+      {/* Transaction modal */}
+      <Modal
+          visible={showTransactionModal}
+          transparent={true}
+          animationType="fade"
+        >
+          <View style={styles.modalOverlay}>
+            <View style={styles.modalContent}>
+
+              <Text style={styles.modalTitle}>Please wait, transaction is in progress...</Text>
+              
+              <View style={{alignItems: 'center'}}>
+                <ActivityIndicator size="large" color="#FD47B7" />
               </View>
             </View>
           </View>
