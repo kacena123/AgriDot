@@ -207,7 +207,7 @@ const addGuide = () => {
                       console.log(resp)
                       
                       setShowCreatingdModal(false);
-                      if (resp.status >= 200 || resp.status < 300) {
+                      if (resp.status >= 200 && resp.status < 300) {
                         console.log("Guide creation successful");
                         setShowSuccesfuldModal(true);
                       }
