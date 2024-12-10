@@ -204,14 +204,16 @@ const addGuide = () => {
                         }),
                       }
                       )
-                      console.log(resp)
                       
+                      const respJson = await resp.json();
+                      console.log(respJson.status);
+
                       setShowCreatingdModal(false);
-                      if (resp.status >= 200 && resp.status < 300) {
+                      if (respJson.status === "Success") {
                         console.log("Guide creation successful");
                         setShowSuccesfuldModal(true);
                       }
-                      else {
+                      else if (respJson.status === "Failed") {
                         console.log("Guide creation failed");
                         setShowFaileddModal(true);
                       }
