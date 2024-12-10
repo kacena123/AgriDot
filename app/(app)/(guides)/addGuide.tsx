@@ -29,6 +29,7 @@ const addGuide = () => {
   const [showTransactionModal, setShowTransactionModal] = useState(false);
   const [showCreatingdModal, setShowCreatingdModal] = useState(false);
   const [showSuccesfuldModal, setShowSuccesfuldModal] = useState(false);
+  const [showFaileddModal, setShowFaileddModal] = useState(false);
 
   const [feeAmount, setFeeAmount] = useState(0);
   const [approvalHandlers, setApprovalHandlers] = useState<{
@@ -191,7 +192,30 @@ const addGuide = () => {
                       console.log("HI");
                       setShowTransactionModal(false);
                       setShowCreatingdModal(true)
-                      //further will happen on the server
+                      //further will happen on the server side
+                      const resp = await fetch(process.env.EXPO_PUBLIC_SERVER_URL+'/agridot/guide', {
+                        method: 'POST',
+                        headers: {
+                          'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                          owner: AgriDotSigner.address,
+                          metadata: encryptedMeta,
+                        }),
+                      }
+                      )
+                      console.log(resp)
+                      
+                      setShowCreatingdModal(false);
+                      if (resp.status >= 200 || resp.status < 300) {
+                        console.log("Guide creation successful");
+                        setShowSuccesfuldModal(true);
+                      }
+                      else {
+                        console.log("Guide creation failed");
+                        setShowFaileddModal(true);
+                      }
+                      console.log("HEHE")
                   }
                 }
               });
@@ -325,6 +349,29 @@ const addGuide = () => {
             <View style={styles.modalContent}>
 
               <Text style={styles.modalTitle}>Your guide has been successfully created</Text>
+              
+              <View style={{paddingLeft: 10, paddingRight: 10}}>
+                <CustomButton 
+                  title="Close and go to guides"
+                  onPress={() => {setShowSuccesfuldModal(false), router.push('/(app)/(tabs)/guides')}}
+                  containerStyles={{ height: 50,}}
+                  textStyles={{ fontSize: 16 }}
+                />
+              </View>
+            </View>
+          </View>
+      </Modal>
+
+      { /* Failed modal */}
+      <Modal
+          visible={showFaileddModal}
+          transparent={true}
+          animationType="fade"
+        >
+          <View style={styles.modalOverlay}>
+            <View style={styles.modalContent}>
+
+              <Text style={styles.modalTitle}>Something went wrong, your guide has not been created</Text>
               
               <View style={{paddingLeft: 10, paddingRight: 10}}>
                 <CustomButton 
