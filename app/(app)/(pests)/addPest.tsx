@@ -229,14 +229,15 @@ const addPest = () => {
                         }),
                       }
                       )
-                      console.log(resp)
+                      const respJson = await resp.json();
+                      console.log(respJson.status);
 
                       setShowCreatingdModal(false);
-                      if (resp.status >= 200 && resp.status < 300) {
+                      if (respJson.status === "Success") {
                         console.log("Pest report creation successful");
                         setShowSuccesfuldModal(true);
                       }
-                      else {
+                      else if (respJson.status === "Failed") {
                         console.log("Pest report creation failed");
                         setShowFaileddModal(true);
                       }
