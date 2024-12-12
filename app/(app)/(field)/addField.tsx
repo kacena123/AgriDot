@@ -205,7 +205,7 @@ const addField = () => {
             console.log("Decrypted image", originalImage);
             console.log("Decrypted type", originalType);
           }
-          const wsProvider = new WsProvider('wss://asset-hub-paseo-rpc.dwellir.com');
+          const wsProvider = new WsProvider(process.env.EXPO_PUBLIC_WS_ENDPOINT);
           const api = await ApiPromise.create({ provider: wsProvider });
 
           const config = {

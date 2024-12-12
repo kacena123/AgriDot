@@ -57,7 +57,7 @@ const addGuide = () => {
     }
     // Open image picker
     const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ['images', 'videos'],
+      mediaTypes: ['images'],
       allowsEditing: true,
       quality: 1,
     });
@@ -137,7 +137,7 @@ const addGuide = () => {
       const meta = await pinataService.uploadJSON(body);
       console.log("Uploaded to Pinata", meta);
 
-        const wsProvider = new WsProvider('wss://asset-hub-paseo-rpc.dwellir.com');
+        const wsProvider = new WsProvider(process.env.EXPO_PUBLIC_WS_ENDPOINT);
         const api = await ApiPromise.create({ provider: wsProvider });
 
         let nextItemId = 0;

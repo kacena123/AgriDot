@@ -64,7 +64,7 @@ const addPest = () => {
     }
     // Open image picker
     const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ['images', 'videos'],
+      mediaTypes: ['images'],
       allowsEditing: true,
       quality: 1,
     });
@@ -162,7 +162,7 @@ const addPest = () => {
       const fetchedData = await fetch(meta.pinataUrl);
       const data = await fetchedData.json();
 
-        const wsProvider = new WsProvider('wss://asset-hub-paseo-rpc.dwellir.com');
+        const wsProvider = new WsProvider(process.env.EXPO_PUBLIC_WS_ENDPOINT);
         const api = await ApiPromise.create({ provider: wsProvider });
 
         let nextItemId = 0;

@@ -22,9 +22,9 @@ AgriDot is a blockchain-based application that enables farmers to manage their f
 
 In AgriDot we believe, that Farmers can benefit from Blockchain usecase and we also believe, that the community of Farmers can be really strong together and save lots of crops per annum by pest reports.
 
-For user guide please reffer to the [Official AgriDot documentation - User guide section](LINK)
+For user guide please reffer to the [Official AgriDot documentation - User guide section](https://kacena123.github.io/agridot-docs/user-guide/intro.html)
 
-For developer guide please reffer to [Official AgriDot documentation - Developer guide section](LINK)
+For developer guide please reffer to [Official AgriDot documentation - Developer guide section](https://kacena123.github.io/agridot-docs/dev-guide/introduction.html)
 
 ## Building the application
 
@@ -35,6 +35,7 @@ EXPO_PUBLIC_PINATA_JWT=string
 EXPO_PUBLIC_GATEWAY_URL=webside.mypinata.cloud
 EXPO_PUBLIC_SERVER_URL=url
 EXPO_PUBLIC_ENCRYPT_PHRASE=password
+EXPO_PUBLIC_WS_ENDPOINT=wss://kusama-asset-hub-rpc.polkadot.io
 ```
 
 ### Docker build
@@ -63,4 +64,3 @@ npx expo start
 Here is the list of commands that can be used to perform other tasks with the codebase.
 
 - `npm run test`: Run the unit tests
-- `npm run lint`: Lint the application code

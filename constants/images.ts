@@ -5,8 +5,6 @@ import polygon_green from '@/assets/images/Polygon2.png';
 import green_rectangle from '@/assets/images/green_rectangle.png';
 import secured_by_polkadot from '@/assets/images/secured_by_polkadot.png';
 
-// /Users/katarinavalova/Desktop/AgriDot/constants/Images.ts
-
 // Importing images
 // Add more imports as needed
 
