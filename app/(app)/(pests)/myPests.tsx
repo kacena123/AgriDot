@@ -5,6 +5,7 @@ import { StatusBar } from 'expo-status-bar'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { GestureHandlerRootView } from 'react-native-gesture-handler'
 import { Ionicons } from '@expo/vector-icons';
+import { useRouter } from 'expo-router';
 
 const DATA = [
     { id: '1', title: 'Pest 1', location: 'Location 1', dateAdded: 'June 28, 2024' },
@@ -35,12 +36,15 @@ const Item: React.FC<ItemProps> = ({ title, location, dateAdded, onPress }) => (
   );
 
 const MyPests = () => {
+  const router = useRouter();
     const navigation = useNavigation();
 
-    const handleItemPress = (title: string) => {
-        // Navigate to detailField and pass the title as a param
-        navigation.navigate('(pests)/detailPest', { title });
-      };
+  const handleItemPress = (title: string) => {
+      router.push({
+        pathname: '/(app)/(pests)/detailPest',
+        params: { title },
+      });
+  };
 
   return (
   <GestureHandlerRootView style={{ flex: 1 }}>
@@ -62,7 +66,7 @@ const MyPests = () => {
         {/* Button + to add pest */}
         <TouchableOpacity 
           style={styles.roundButton} 
-          onPress={() => { navigation.navigate('(pests)/addPest') }}
+          onPress={() => { router.push({ pathname: '/(app)/(pests)/addPest' }) }}
         >
           <Text style={styles.plusIcon}>+</Text>
         </TouchableOpacity>
@@ -70,7 +74,7 @@ const MyPests = () => {
         {/* Button filter */}
         <TouchableOpacity 
           style={styles.leftButton} 
-          onPress={() => { navigation.navigate('(pests)/myPestsFilter') }}
+          onPress={() => { router.push({ pathname: '/(app)/(pests)/myPestsFilter' }) }}
         >
           <Ionicons name="options" color="#fff" size={25} />
         </TouchableOpacity>

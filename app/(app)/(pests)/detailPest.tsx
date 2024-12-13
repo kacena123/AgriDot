@@ -8,9 +8,12 @@ import { ApiPromise, WsProvider } from '@polkadot/api';
 import { Keyring } from '@polkadot/keyring';
 import { useSession } from '@/context/ctx';
 import { FontAwesome6 } from '@expo/vector-icons';
+import { useRouter } from 'expo-router';
+import { get } from 'react-native/Libraries/TurboModule/TurboModuleRegistry';
 
 const detailPest = () => {
     const route = useRoute();
+    const router = useRouter();
     const navigation = useNavigation();
     const { title } = route.params as { title: string };  // Extract title from route params
     console.log('Title:', title); 
@@ -21,8 +24,7 @@ const detailPest = () => {
     const [showConfirmModal, setShowConfirmModal] = useState(false);
     const [showThankingModal, setShowThankingModal] = useState(false);
     const [donationAmount, setDonationAmount] = useState('1');
-
-
+    
     const [isLoading, setIsLoading] = useState(false);
 
     // Fetch the stored secret phrase
@@ -41,6 +43,29 @@ const detailPest = () => {
         headerTitle: title,  // Set the header title to the item's title
         });
     }, [navigation, title]);
+
+    // Update the type definition to include all passed params
+    const { description, fields, distances, date, image } = route.params as { 
+      title: string;
+      description: string;
+      fields: string | string[];
+      distances: string;
+      date: string;
+      image: string;
+    };
+
+    // get the fields and distances to arrays
+    const fieldsArray = Array.isArray(fields) ? fields : fields.split(',');
+    const distancesArray = Array.isArray(distances) ? distances : distances.split(',');
+    // get distances from fields to string for description
+    let stringFieldsDistance = "";
+    const getFieldsDistance = async () => {
+      for (let i = 0; i < fieldsArray.length; i++) {
+      const field = fieldsArray[i];
+      const distance = parseFloat(distancesArray[i]).toFixed(2); // Round to 2 decimal places
+      stringFieldsDistance = stringFieldsDistance + (field + ": " + distance +  " km\n");
+      }
+    }
 
     const donate = async () => {
       setIsLoading(true);
@@ -91,30 +116,40 @@ const detailPest = () => {
       }
       
     }
+  getFieldsDistance();
 
   return (
     <ScrollView contentContainerStyle={styles.wrapper}>
         {/* Image of pest */}
         <View style={{ flexDirection: 'row', justifyContent: 'center', marginBottom: 20 }}>
-            <Image source={require('@/assets/images/pest1.jpg')} style={{width: 350, height: 200}}  />
+            <Image source={{uri: image}} style={{width: '100%', height: 200, borderRadius: 20}}  />
         </View>
 
+        {/* Date */}
+        <Text style={styles.text}>
+            <Text style={styles.textBold}>Date of creation:</Text>  
+            {date}
+        </Text>
+
+        {/* Distances from fields */}
+        <Text style={styles.textBold}>
+            Distances from fields: {'\n'}
+        </Text>
+        <Text style={styles.text}>
+          {stringFieldsDistance}
+        </Text>
 
         {/* Text */}
+        <Text style={styles.textBold}>
+            Description:
+        </Text>
         <Text style={styles.text}>
-            Crop: Lettuce{'\n'}
-            Observation:{'\n'}
-            Aphids detected on 10% of plants.
-            Small clusters (5-15 aphids) mainly on leaf undersides.
-            Some wilting and yellowing observed.{'\n'}
-            Actions Taken:{'\n'}
-            Manually removed aphids; pruned infested leaves.
-            Applied neem oil to affected plants.
+            {description}
         </Text>
 
       {/* Mark fake pest report Button */}
       <CustomButton title='Mark fake pest report' 
-        onPress={() => {navigation.navigate('(pests)/reportPest')}}
+        onPress={() => {router.push('/(app)/(pests)/reportPest')}}
         containerStyles={{ borderRadius: 20, height: 50, backgroundColor: '#145E2F' }}
         textStyles={{ fontSize: 18 }}
       />
@@ -261,6 +296,12 @@ const styles = StyleSheet.create({
         fontSize: 16,
         marginLeft: 10,
         marginBottom: 20,
+    },
+    textBold: { 
+        fontSize: 16,
+        marginLeft: 10,
+        fontWeight: 'bold',
+        fontFamily: 'DMSans',
     },
 
     modalOverlay: {

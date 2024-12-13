@@ -22,7 +22,7 @@ const pests = () => {
         }}
       >
         <TopTab.Screen name="NearbyPests" component={NearbyPests} options={{ title: 'Nearby Pests' }} />
-        <TopTab.Screen name="MyPests" component={MyPests} options={{ title: 'My Pests' }} />
+        {/* <TopTab.Screen name="MyPests" component={MyPests} options={{ title: 'My Pests' }} /> */}
       </TopTab.Navigator>
 
       <StatusBar

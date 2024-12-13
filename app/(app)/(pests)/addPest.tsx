@@ -5,6 +5,7 @@ import { StatusBar } from 'expo-status-bar'
 import CustomButton from '@/components/CustomButton'
 import { useState } from 'react';
 import * as ImagePicker from 'expo-image-picker';
+import * as Location from 'expo-location';
 import { Picker } from '@react-native-picker/picker';
 import { SecureStorage } from '@/services/secureStorage';
 
@@ -17,14 +18,10 @@ import { router } from 'expo-router';
 
 
 const addPest = () => {
-
-    const [selectedLocation, setSelectedLocation] = useState<string | null>(null);
-    const [pickerTextColor, setPickerTextColor] = useState('#666');
-    const locations = ['Location 1', 'Location 2', 'Location 3']; 
-
     const [pestName, setPestName] = useState<string>('');
     const [pestDescription, setPestDescription] = useState<string>('');
-    const [location, setLocation] = useState<ListRenderItem<string> | null>(null);
+    const [latitude, setLatitude] = useState('');
+    const [longitude, setLongitude] = useState('');
 
     const [selectedImage, setSelectedImage] = useState<string | null>(null);
     const [mimeType, setMimeType] = useState<string | null>(null);
@@ -75,6 +72,20 @@ const addPest = () => {
     }
   };
 
+  // Function to get user's current location
+  const useMyLocation = async () => {
+    // Request permission to access location
+    let { status } = await Location.requestForegroundPermissionsAsync();
+    if (status !== 'granted') {
+      alert('Permission to access location was denied');
+      return;
+    }
+    // Get current location
+    let location = await Location.getCurrentPositionAsync({});
+    setLatitude(location.coords.latitude.toString());
+    setLongitude(location.coords.longitude.toString());
+  };
+
   // Function to wait for user approval
   const waitForApproval = () => {
     return new Promise<boolean>((resolve) => {
@@ -118,10 +129,10 @@ const addPest = () => {
       return;
     }
 
-    //Pest location
-    //Here the location still has to be loaded from the selected field in the dropdown menu
-    const latitude = "";
-    const longitude = "";
+    if (!latitude || !longitude) {
+      console.log("Pest location is required");
+      return;
+    }
 
     try {
       // Generate a filename
@@ -275,25 +286,30 @@ const addPest = () => {
         placeholder="Enter pest name"
         placeholderTextColor="#666"
       />
-      {/* Location */}
-      <Text style={{ fontFamily: 'DMSans', fontSize: 16 }}>Location:</Text>
-    
-      <View style={styles.pickerContainer}>
-        <Picker
-            selectedValue={selectedLocation}
-            onValueChange={(itemValue) => {
-                setSelectedLocation(itemValue)
-                setPickerTextColor('#000')
-            }}
-            style={{color: pickerTextColor, fontFamily: 'DMSans', fontSize: 16}}
-            dropdownIconColor="#FD47B7"
-        >
-            <Picker.Item label="Select a location" value={null} />
-            {locations.map((location, index) => (
-                <Picker.Item key={index} label={location} value={location} />
-            ))}
-        </Picker>
-      </View>
+      {/* Add Pest Coordinates */}
+      <Text style={{ fontFamily: 'DMSans', fontSize: 16 }}>Latitude:</Text>
+      <TextInput
+        style={styles.input}
+        placeholder="Enter pest latitude"
+        placeholderTextColor="#666"
+        value={latitude} 
+        onChangeText={setLatitude} 
+      />
+      <Text style={{ fontFamily: 'DMSans', fontSize: 16 }}>Longitude:</Text>
+      <TextInput
+        style={styles.input}
+        placeholder="Enter pest longitude"
+        placeholderTextColor="#666"
+        value={longitude} 
+        onChangeText={setLongitude} 
+      />
+      {/* Use My Location button */}
+      <CustomButton 
+        title='Use My Lcation' 
+        onPress={useMyLocation}
+        containerStyles={{ borderRadius: 20, height: 50, marginBottom: 20 }}
+        textStyles={{ fontSize: 16 }} 
+      />
 
       {/* Add Pest Description */}
       <Text style={{ fontFamily: 'DMSans', fontSize: 16 }}>Description:</Text>
