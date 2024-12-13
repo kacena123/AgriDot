@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { StyleSheet, Text, View, SafeAreaView, ScrollView, ImageBackground, ActivityIndicator, FlatList } from 'react-native';
 import { getWeatherIcon } from '@/utils/weatherIcons';
 import { FontAwesome6 } from '@expo/vector-icons';
+import { LocationContext } from '@/context/LocationContext';
+import * as Location from 'expo-location';
 
 
 interface HourlyData {
@@ -20,18 +22,53 @@ interface HourlyData {
 const HourlyWeather = () => {
   const [hourlyForecast, setHourlyForecast] = useState<HourlyData[]>([]);
   const [loading, setLoading] = useState(true);
+  const { coordinates } = React.useContext(LocationContext);
+  const [currentLatitude, setLatitude] = useState<string>('');
+  const [currentLongitude, setLongitude] = useState<string>('');
+
+  // Function to get user's current location
+  const useMyLocation = async () => {
+    // Request permission to access location
+    let { status } = await Location.requestForegroundPermissionsAsync();
+    if (status !== 'granted') {
+      alert('Permission to access location was denied');
+      return;
+    }
+    // Get current location
+    let location = await Location.getCurrentPositionAsync({});
+    setLatitude(location.coords.latitude.toString());
+    setLongitude(location.coords.longitude.toString());
+  };
 
   // Fetch hourly weather data
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const params = {
-          latitude: 54.149210,
-          longitude: 12.191914,
-          current_weather: false,
-          hourly: 'temperature_2m,weather_code,is_day,cloudcover,precipitation,rain,showers,snowfall,windspeed_10m',
-          timezone: "auto",
-        };
+        setLoading(true);
+        let params;
+        if (!coordinates) {
+          await useMyLocation();
+          if (!currentLatitude || !currentLongitude) {
+            return;
+          }
+          params = {
+            latitude: currentLatitude,
+            longitude: currentLongitude,
+            current_weather: false,
+            hourly: 'temperature_2m,weather_code,is_day,cloudcover,precipitation,rain,showers,snowfall,windspeed_10m',
+            timezone: "auto",
+          };
+          console.log(params);
+        } else {
+          const [latitude, longitude] = coordinates.split(' ').map(Number);
+          params = {
+            latitude,
+            longitude,
+            current_weather: false,
+            hourly: 'temperature_2m,weather_code,is_day,cloudcover,precipitation,rain,showers,snowfall,windspeed_10m',
+            timezone: "auto",
+          };
+        }
 
         const url = `https://api.open-meteo.com/v1/forecast?latitude=${params.latitude}&longitude=${params.longitude}&current_weather=${params.current_weather}&hourly=${params.hourly}&timezone=${params.timezone}`;
         
@@ -68,7 +105,7 @@ const HourlyWeather = () => {
     };
 
     fetchData();
-  }, []);
+  }, [coordinates, currentLatitude, currentLongitude]);
 
   if (loading) {
     return <ActivityIndicator size="large" color="#0000ff" />;

@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { StyleSheet, Text, View, ScrollView, ActivityIndicator, FlatList } from 'react-native';
 import { getWeatherIcon } from '@/utils/weatherIcons';
 import { FontAwesome6 } from '@expo/vector-icons';
+import { LocationContext } from '@/context/LocationContext';
+import * as Location from 'expo-location';
 
 interface DailyData {
   time: Date;
@@ -18,17 +20,52 @@ interface DailyData {
 const LongtermWeather = () => {
   const [dailyForecast, setDailyForecast] = useState<DailyData[]>([]);
   const [loading, setLoading] = useState(true);
+  const { coordinates } = React.useContext(LocationContext);
+  const [currentLatitude, setLatitude] = useState<string>('');
+  const [currentLongitude, setLongitude] = useState<string>('');
+
+  // Function to get user's current location
+  const useMyLocation = async () => {
+    // Request permission to access location
+    let { status } = await Location.requestForegroundPermissionsAsync();
+    if (status !== 'granted') {
+      alert('Permission to access location was denied');
+      return;
+    }
+    // Get current location
+    let location = await Location.getCurrentPositionAsync({});
+    setLatitude(location.coords.latitude.toString());
+    setLongitude(location.coords.longitude.toString());
+  };
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const params = {
-          latitude: 54.149210,
-          longitude: 12.191914,
-          current_weather: false,
-          daily: 'temperature_2m_max,temperature_2m_min,precipitation_sum,precipitation_hours,precipitation_probability_max,wind_speed_10m_max,wind_gusts_10m_max,weathercode',
-          timezone: 'auto',
-        };
+        setLoading(true);
+        let params;
+        if (!coordinates) {
+          await useMyLocation();
+          if (!currentLatitude || !currentLongitude) {
+            return;
+          }
+          params = {
+            latitude: currentLatitude,
+            longitude: currentLongitude,
+            current_weather: false,
+            daily: 'temperature_2m_max,temperature_2m_min,precipitation_sum,precipitation_hours,precipitation_probability_max,wind_speed_10m_max,wind_gusts_10m_max,weathercode',
+            timezone: 'auto',
+          };
+          console.log(params);
+        } else {
+          const [latitude, longitude] = coordinates.split(' ').map(Number);
+          params = {
+            latitude,
+            longitude,
+            current_weather: false,
+            daily: 'temperature_2m_max,temperature_2m_min,precipitation_sum,precipitation_hours,precipitation_probability_max,wind_speed_10m_max,wind_gusts_10m_max,weathercode',
+            timezone: 'auto',
+          };
+        }
 
         const url = `https://api.open-meteo.com/v1/forecast?latitude=${params.latitude}&longitude=${params.longitude}&current_weather=${params.current_weather}&daily=${params.daily}&timezone=${params.timezone}`;
         const response = await fetch(url);
@@ -62,7 +99,7 @@ const LongtermWeather = () => {
     };
 
     fetchData();
-  }, []);
+  }, [coordinates, currentLatitude, currentLongitude]);
 
   if (loading) {
     return <ActivityIndicator size="large" color="#0000ff" />;

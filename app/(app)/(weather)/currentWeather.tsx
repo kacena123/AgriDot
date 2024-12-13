@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { StyleSheet, Text, View, SafeAreaView, ScrollView, ImageBackground, ActivityIndicator, FlatList } from 'react-native';
 import { getWeatherIcon } from '@/utils/weatherIcons';
 import { Fontisto } from '@expo/vector-icons';
+import { LocationContext } from '@/context/LocationContext';
+import * as Location from 'expo-location';
 
 interface WeatherData {
   time: Date;
@@ -23,18 +25,54 @@ const CurrentWeather = () => {
   const [weatherData, setWeatherData] = useState<WeatherData | null>(null);
   const [hourlyForecast, setHourlyForecast] = useState<HourlyData[]>([]);
   const [loading, setLoading] = useState(true);
+  const { coordinates } = React.useContext(LocationContext);
+  const [currentLatitude, setLatitude] = useState<string>('');
+  const [currentLongitude, setLongitude] = useState<string>('');
+
+  // Function to get user's current location
+  const useMyLocation = async () => {
+    // Request permission to access location
+    let { status } = await Location.requestForegroundPermissionsAsync();
+    if (status !== 'granted') {
+      alert('Permission to access location was denied');
+      return;
+    }
+    // Get current location
+    let location = await Location.getCurrentPositionAsync({});
+    setLatitude(location.coords.latitude.toString());
+    setLongitude(location.coords.longitude.toString());
+  };
+
 
   // Fetch weather data when the component mounts
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const params = {
-          latitude: 48.157998,
-          longitude: 17.068557,
-          current_weather: true,
-          hourly: 'temperature_2m,weather_code,is_day',
-          timezone: "auto",
-        };
+        setLoading(true);
+        let params;
+        if (!coordinates) {
+          await useMyLocation();
+          if (!currentLatitude || !currentLongitude) {
+            return;
+          }
+          params = {
+            latitude: currentLatitude,
+            longitude: currentLongitude,
+            current_weather: true,
+            hourly: 'temperature_2m,weather_code,is_day',
+            timezone: "auto",
+          };
+          console.log(params);
+        } else {
+          const [latitude, longitude] = coordinates.split(' ').map(Number);
+          params = {
+            latitude,
+            longitude,
+            current_weather: true,
+            hourly: 'temperature_2m,weather_code,is_day',
+            timezone: "auto",
+          };
+        }
 
         const url = `https://api.open-meteo.com/v1/forecast?latitude=${params.latitude}&longitude=${params.longitude}&current_weather=${params.current_weather}&hourly=${params.hourly}&timezone=${params.timezone}`;
         
@@ -58,13 +96,22 @@ const CurrentWeather = () => {
           windDirection10m: currentWeather.winddirection,
         };
 
+        // Find current hour index
+        const currentHour = new Date().getHours();
+        const currentHourIndex = data.hourly.time.findIndex((time: string) => {
+          const hour = new Date(time).getHours();
+          return hour >= currentHour;
+        });
+
         // Extract hourly forecast data (next 12 hours)
-        const hourlyData: HourlyData[] = data.hourly.time.slice(0, 12).map((time: string, index: number) => ({
-          time: new Date(time),
-          temperature2m: data.hourly.temperature_2m[index],
-          weatherCode: data.hourly.weather_code[index],
-          isDay: data.hourly.is_day[index],
-        }));
+        const hourlyData: HourlyData[] = data.hourly.time
+          .slice(currentHourIndex, currentHourIndex + 12)
+          .map((time: string, index: number) => ({
+            time: new Date(time),
+            temperature2m: data.hourly.temperature_2m[currentHourIndex + index],
+            weatherCode: data.hourly.weather_code[currentHourIndex + index],
+            isDay: data.hourly.is_day[currentHourIndex + index],
+          }));
 
         setWeatherData(weather);
         setHourlyForecast(hourlyData);
@@ -72,11 +119,12 @@ const CurrentWeather = () => {
       } catch (error) {
         console.error("Error fetching weather data: ", error);
         setLoading(false);
+      } finally {
+        setLoading(false);
       }
     };
-
     fetchData();
-  }, []);
+  }, [coordinates, currentLatitude, currentLongitude]);
 
   if (loading) {
     return <ActivityIndicator size="large" color="#0000ff" />;
