@@ -8,9 +8,10 @@ import { ApiPromise, WsProvider } from '@polkadot/api';
 import { Keyring } from '@polkadot/keyring';
 import { useSession } from '@/context/ctx';
 import { FontAwesome6 } from '@expo/vector-icons';
+import { useRouter } from 'expo-router';
 
 const detailGuide = () => {
-
+  const router = useRouter();
   const route = useRoute();
   const navigation = useNavigation();
   const { title } = route.params as { title: string };  // Extract title from route params
@@ -23,8 +24,14 @@ const detailGuide = () => {
   const [showThankingModal, setShowThankingModal] = useState(false);
   const [donationAmount, setDonationAmount] = useState('1');
 
-
   const [isLoading, setIsLoading] = useState(false);
+
+  // Update the type definition to include all passed params
+  const { description, image } = route.params as { 
+    title: string;
+    description: string;
+    image: string;
+  };
 
   // Fetch the stored secret phrase
   useEffect(() => {
@@ -54,7 +61,6 @@ const detailGuide = () => {
 
     const call = api.tx.balances.transferKeepAlive(address, amount);
 
-    
     if (!storedPhrase) {
       throw new Error("SECRET_KEY is not defined in the environment variables");
     }
@@ -95,21 +101,15 @@ const detailGuide = () => {
   return (
     <ScrollView contentContainerStyle={styles.wrapper}>
       <View style={styles.container}>
-        <Ionicons name="image" size={50} color="#145E2F" />   
+        <Image source={{ uri: image }} style={{ width: '100%', height: '100%', borderRadius: 20 }} />  
       </View>
 
       <Text style={styles.text}>
-        Aphids are small, soft-bodied insects that can cause significant damage to your plants by sucking the sap from leaves, stems, and roots. Fortunately, there are several effective strategies you can use to prevent and control aphid infestations. Follow this guide to keep your garden aphid-free. {'\n'}
-        1. Choose Aphid-Resistant Plants {'\n'}
-        Plant Selection: Start by choosing varieties of plants that are less attractive to aphids. Some species are naturally resistant, making them less likely to suffer from aphid damage. {'\n'}
-        Companion Planting: Consider planting aphid-repelling plants such as garlic, onions, chives, or marigolds alongside your main crops. These plants release odors that aphids dislike. {'\n'}
-        2. Encourage Beneficial Insects {'\n'}
-        Natural Predators: Ladybugs, lacewings, and hoverflies are natural predators of aphids. Encourage these beneficial insects by planting nectar-rich flowers like dill, fennel, and yarrow. {'\n'}
-        Provide Habitat: Create a welcoming environment for beneficial insects by incorporating diverse plant species and leaving some wild areas in your garden. 
+        {description}
       </Text>
 
       <CustomButton title="Report guide" 
-        onPress={() => {navigation.navigate('(guides)/reportGuide')} }
+        onPress={() => {router.push({ pathname: '/(app)/(guides)/reportGuide' })} }
         containerStyles={{ borderRadius: 20, height: 52, backgroundColor: '#145E2F', marginTop: 30, marginBottom: 10 }}
         textStyles={{ fontSize: 18 }}
       />

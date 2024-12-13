@@ -94,7 +94,7 @@ const addGuide = () => {
     const wallet = new Keyring({ type: 'sr25519' });
     const AgriDotSigner = wallet.addFromUri(storedPhrase);
 
-    const guideCollectionId = 29;
+    const guideCollectionId = process.env.EXPO_PUBLIC_GUIDE_COLLECTION_ID;
 
     //Guide title
     if (!guideTitle) {

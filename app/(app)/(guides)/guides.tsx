@@ -1,39 +1,29 @@
-import { StyleSheet, Text, TouchableOpacity, FlatList, View, TextInput } from 'react-native'
-import React from 'react'
+import { StyleSheet, Text, TouchableOpacity, FlatList, View, TextInput, Image, ActivityIndicator } from 'react-native'
+import React, {useEffect, useState} from 'react'
 import { GestureHandlerRootView } from 'react-native-gesture-handler'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { Ionicons } from '@expo/vector-icons';
 import { StatusBar } from 'expo-status-bar'
-import { useNavigation } from '@react-navigation/native';
+import { useRouter } from 'expo-router';
+import { getClient } from '@kodadot1/uniquery'
 
-
-const DATA = [
-  { id: '1', title: 'Guide 1', dateAdded: 'June 28, 2024', likes: '631' },
-  { id: '2', title: 'Guide 2', dateAdded: 'June 28, 2024', likes: '629' },
-  { id: '3', title: 'Guide 3', dateAdded: 'June 28, 2024', likes: '560' },
-  { id: '4', title: 'Guide 4', dateAdded: 'June 28, 2024', likes: '559' },
-  { id: '5', title: 'Guide 5', dateAdded: 'June 28, 2024', likes: '517' },
-  { id: '6', title: 'Guide 6', dateAdded: 'June 28, 2024', likes: '475' },
-  { id: '7', title: 'Guide 7', dateAdded: 'June 28, 2024', likes: '469' },
-  { id: '8', title: 'Guide 8', dateAdded: 'June 28, 2024', likes: '456' },
-  { id: '9', title: 'Guide 9', dateAdded: 'June 28, 2024', likes: '444' },
-  { id: '10', title: 'Guide 10', dateAdded: 'June 28, 2024', likes: '420' },
-  { id: '11', title: 'Guide 11', dateAdded: 'June 28, 2024', likes: '397' },
-  { id: '12', title: 'Guide 12', dateAdded: 'June 28, 2024', likes: '384' },
-];
 
 type ItemProps = {
   title: string;
   dateAdded: string;
   likes: string;
+  image: string;
   onPress: () => void;
 };
 
-const Item: React.FC<ItemProps> = ({ title, dateAdded, likes, onPress }) => (
+const Item: React.FC<ItemProps> = ({ title, dateAdded, likes, image, onPress }) => (
   <TouchableOpacity onPress={onPress}>
   <View style={styles.itemContainer}>
-    {/* Icon or Image on the Left */}
-    <Ionicons name="book" color="#145E2F" size={40} style={styles.image} />
+    <Image
+      source={{uri: image}}
+      style={styles.image}
+    />
+    
     
     {/* Title and details */}
     <View style={styles.textContainer}>
@@ -48,43 +38,99 @@ const Item: React.FC<ItemProps> = ({ title, dateAdded, likes, onPress }) => (
   </TouchableOpacity>
 );
 
-const Guides = () => {
-  const navigation = useNavigation();
 
-  const handleItemPress = (title: string) => {
-    // Navigate to detailField and pass the title as a param
-    navigation.navigate('(guides)/detailGuide', { title });
+
+const Guides = () => {
+  const router = useRouter();
+  const guideCollectionId = process.env.EXPO_PUBLIC_GUIDE_COLLECTION_ID;
+
+  const [data, setData] = useState<any[]>([]);
+  const [isLenght, setIsLenght] = useState<boolean>(true);
+
+  const [loading, setLoading] = useState(true);
+
+  const handleItemPress = (title: string, description: string, image: string ) => {
+    router.push({
+      pathname: '/(app)/(guides)/detailGuide',
+      params: { title, description, image },
+    });
   };
+
+  const handleAddGuide = () => {
+    router.push({
+      pathname: '/(app)/(guides)/addGuide',
+    });
+  };
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        setData([]);
+        const client = getClient("ahk" as any)
+        const query = client.itemListByCollectionId(guideCollectionId);
+
+        try{
+          const result = await client.fetch<any>(query);
+
+          const fetchedData = result.data?.items;
+
+          for (let i = 0; i < fetchedData.length; i++) {
+            const item = fetchedData[i];
+            const metdataIpfsUrl = item.metadata.replace("ipfs://", "https://"+process.env.EXPO_PUBLIC_GATEWAY_URL+"/ipfs/");
+            const metadataResponse = await fetch(metdataIpfsUrl);
+            const metadata = await metadataResponse.json();
+            if (metadata.external_url === "agridot-web3") {
+              const image = metadata.image.replace("ipfs://", "https://"+process.env.EXPO_PUBLIC_GATEWAY_URL+"/ipfs/");
+              setData(data => [...data, { id: item.id, title: metadata.name, dateAdded: new Date(item.createdAt).toLocaleDateString(), description: metadata.description, image: image, likes: 20 }]);
+            }
+          }
+          if(fetchedData.length === 0){
+            setIsLenght(false);
+          }
+
+        } catch (error) {
+          console.error('Error fetching data:', error);
+        }
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      }
+      setLoading(false);
+    };
+    fetchData();
+  }, []);
+
+  if (loading) {
+    return (
+      <View style={styles.container}>
+      <ActivityIndicator size="large" color="#FD47B7"/>
+      </View>
+    );
+  }
+
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
     <SafeAreaView style={{ flex: 1, backgroundColor: 'white' }}>
       <View style={{ flex: 1 }}>
-        <View style={styles.searchContainer}>
-          <TextInput
-            style={styles.searchText}
-            placeholder="search..."
-          />
-          <TouchableOpacity onPress={() => console.log('tap')}>
-            <Ionicons name="search" size={24} color="#145E2F" />
-          </TouchableOpacity>
-        </View>
+        
 
         <FlatList
-          data={DATA}
+          data={data}
           keyExtractor={item => item.id}
           renderItem={({ item }) => (
             <Item 
               title={item.title} 
               dateAdded={item.dateAdded}
               likes={item.likes}
-              onPress={() => handleItemPress(item.title)} 
+              image={item.image}
+              onPress={() => handleItemPress(item.title, item.description, item.image)} 
             />
           )}
         />
         
         <TouchableOpacity 
           style={styles.roundButton} 
-          onPress={() => { navigation.navigate('(guides)/addGuide') }}
+          onPress={() => { handleAddGuide() }}
         >
           <Text style={styles.plusIcon}>+</Text>
         </TouchableOpacity>
@@ -111,7 +157,7 @@ const styles = StyleSheet.create({
   image: {
     width: 40,
     height: 40,
-    //borderRadius: 25, // Make the image circular
+    borderRadius: 5, 
     marginRight: 15, 
   },
   textContainer: {
