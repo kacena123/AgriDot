@@ -1,42 +1,28 @@
-import { TouchableOpacity, StyleSheet, Text, View, Image, FlatList } from 'react-native'
+import { TouchableOpacity, StyleSheet, Text, View, Image, FlatList, ActivityIndicator } from 'react-native'
 import React from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { GestureHandlerRootView } from 'react-native-gesture-handler'
-import { useNavigation } from '@react-navigation/native'
 import { StatusBar } from 'expo-status-bar'
 import { useRouter } from 'expo-router';
-
-// Sample data with title and coordinates
-const DATA = [
-  { id: '1', title: 'Location 1', coordinates: 'Lat: 51.5074, Long: -0.1278' },
-  { id: '2', title: 'Location 2', coordinates: 'Lat: 40.7128, Long: -74.0060' },
-  { id: '3', title: 'Location 3', coordinates: 'Lat: 34.0522, Long: -118.2437' },
-  { id: '4', title: 'Location 4', coordinates: 'Lat: 41.8781, Long: -87.6298' },
-  { id: '5', title: 'Location 5', coordinates: 'Lat: 37.7749, Long: -122.4194' },
-  { id: '6', title: 'Location 6', coordinates: 'Lat: 33.4484, Long: -112.0740' },
-  { id: '7', title: 'Location 7', coordinates: 'Lat: 29.7604, Long: -95.3698' },
-  { id: '8', title: 'Location 8', coordinates: 'Lat: 32.7767, Long: -96.7970' },
-  { id: '9', title: 'Location 9', coordinates: 'Lat: 39.7392, Long: -104.9903' },
-  { id: '10', title: 'Location 10', coordinates: 'Lat: 45.5051, Long: -122.6750' },
-  { id: '11', title: 'Location 11', coordinates: 'Lat: 36.7783, Long: -119.4179' },
-  { id: '12', title: 'Location 12', coordinates: 'Lat: 40.4406, Long: -79.9959' },
-  { id: '13', title: 'Location 13', coordinates: 'Lat: 35.2271, Long: -80.8431' },
-  { id: '14', title: 'Location 14', coordinates: 'Lat: 42.3601, Long: -71.0589' },
-  { id: '15', title: 'Location 15', coordinates: 'Lat: 42.3314, Long: -83.0458' },
-];
+import { useEffect, useState } from 'react';
+import { SecureStorage } from '@/services/secureStorage';
+import { Keyring } from '@polkadot/api'
+import { getClient } from '@kodadot1/uniquery'
+import CryptoJS from "react-native-crypto-js";
 
 type ItemProps = {
   title: string;
   coordinates: string;
+  image: string;
   onPress: () => void;
 };
 
-const Item: React.FC<ItemProps> = ({ title, coordinates, onPress }) => (
+const Item: React.FC<ItemProps> = ({ title, coordinates, image, onPress }) => (
   <TouchableOpacity onPress={onPress}>
   <View style={styles.itemContainer}>
     {/* Icon or Image on the Left */}
     <Image
-      source={require('@/assets/images/Sprout.png')}
+      source={{uri: image}}
       style={styles.image}
     />
     
@@ -52,36 +38,132 @@ const Item: React.FC<ItemProps> = ({ title, coordinates, onPress }) => (
 
 const Fields = () => {
   const router = useRouter();
+  //const router = useRoute();
+  //const navigation = useNavigation();
+  const [storedPhrase, setStoredPhrase] = useState<string | null>(null);
+  const [password, setPassword] = useState<string | null>(null);
+  const [fetchedData, setFetchedData] = useState<any[]>([]);
+  const [data, setData] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const handleItemPress = (title: string) => {
+  // Fetch the stored secret phrase
+  useEffect(() => {
+    const fetchStoredPhrase = async () => {
+      const phrase = await SecureStorage.getSecretPhrase();
+      setStoredPhrase(phrase);
+      const password = await SecureStorage.getSecretPassword();
+      setPassword(password);
+    };
+    fetchStoredPhrase();
+  }, []);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        setData([]);
+        setFetchedData([]);
+        const client = getClient("ahk" as any)
+        const wallet = new Keyring({ type: 'sr25519' });
+        const userWallet = wallet.addFromUri(await SecureStorage.getSecretPhrase() as string);
+        //Convert to Kusama addr
+        const kusamaAddr = wallet.encodeAddress(userWallet.address, 2) ;
+        const query = client.collectionListByOwner(kusamaAddr);
+
+        try{
+          const result = await client.fetch<any>(query);
+        
+          console.log(result.data?.collections);
+          setFetchedData(result.data?.collections);
+
+          const fetchedData = result.data?.collections;
+          for (let i = 0; i < fetchedData.length; i++) {
+            const item = fetchedData[i];
+            const metdataIpfsUrl = item.metadata.replace("ipfs://", "https://"+process.env.EXPO_PUBLIC_GATEWAY_URL+"/ipfs/");
+            const metadataResponse = await fetch(metdataIpfsUrl);
+            const metadata = await metadataResponse.json();
+            if (metadata.external_url === "agridot-web3") {
+              
+              // Decryption if the field is private
+              if (metadata.name.startsWith("[Private]")) {
+                const title = metadata.name.replace("[Private]", "");
+                const description = metadata.description.replace("[Private]", "");
+                const image = metadata.image.replace("[Private]", "");
+                const password = await SecureStorage.getSecretPassword();
+                if (password) {
+                  const decriptTitle = CryptoJS.AES.decrypt(title, password).toString(CryptoJS.enc.Utf8);
+                  const decriptDescription = CryptoJS.AES.decrypt(description, password).toString(CryptoJS.enc.Utf8);
+                  let decriptImage = CryptoJS.AES.decrypt(image, password).toString(CryptoJS.enc.Utf8);
+                  decriptImage = decriptImage.replace("ipfs://", "https://"+process.env.EXPO_PUBLIC_GATEWAY_URL+"/ipfs/");
+
+                  setData(data => [...data, { id: item.id, title: decriptTitle, coordinates: decriptDescription, image: decriptImage }]);
+                }
+              }
+              // If the field is public
+              else { 
+                const image = metadata.image.replace("ipfs://", "https://"+process.env.EXPO_PUBLIC_GATEWAY_URL+"/ipfs/");
+                setData(data => [...data, { id: item.id, title: metadata.name, coordinates: metadata.description, image: image }]);
+              }
+            }
+          }
+
+        } catch (error) {
+          console.error('Error fetching data:', error);
+        }
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      }
+      setLoading(false);
+    };
+    fetchData();
+  }, []);
+  
+  const handleItemPress = (fieldTitle: string, fieldID: string) => {
+    //navigation.navigate('/(app)/(field)/detailField', { title });
     router.push({
       pathname: '/(app)/(field)/detailField',
-      params: { title },
+      params: { fieldTitle, fieldID },
     });
   };
 
   // Update the add field navigation
   const handleAddField = () => {
+    //navigation.navigate('/(app)/(field)/addField');
     router.push({
       pathname: '/(app)/(field)/addField'
     });
   };
+
+  if (loading) {
+    return (
+      <View style={styles.container}>
+      <ActivityIndicator size="large" color="#FD47B7"/>
+      </View>
+    );
+  }
   
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
     <SafeAreaView style={{ flex: 1, backgroundColor: 'white' }}>
       <View style={{ flex: 1 }}>
-        <FlatList
-          data={DATA}
-          keyExtractor={item => item.id}
-          renderItem={({ item }) => (
-            <Item 
-              title={item.title} 
-              coordinates={item.coordinates} 
-              onPress={() => handleItemPress(item.title)} 
-            />
-          )}
-        />
+      {data.length === 0 ? (
+          <View style={styles.emptyContainer}>
+            <Text style={styles.emptyText}>No fields added yet</Text>
+          </View>
+        ) : (
+          <FlatList
+            data={data}
+            keyExtractor={item => item.id}
+            renderItem={({ item }) => (
+              <Item 
+                title={item.title} 
+                coordinates={item.coordinates} 
+                image={item.image}
+                onPress={() => handleItemPress(item.title, item.id)} 
+              />
+            )}
+          />
+        )}
         
         <TouchableOpacity 
           style={styles.roundButton} 
@@ -121,7 +203,7 @@ const styles = StyleSheet.create({
   image: {
     width: 50,
     height: 50,
-    //borderRadius: 25, // Make the image circular
+    borderRadius: 5,
     marginRight: 15, 
   },
   textContainer: {
@@ -158,5 +240,15 @@ const styles = StyleSheet.create({
     fontSize: 30,
     color: 'white',
     lineHeight: 30,
+  },
+  emptyContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  emptyText: {
+    fontSize: 16,
+    color: '#666',
+    fontFamily: 'DMSans',
   },
 })

@@ -1,37 +1,27 @@
-import { TouchableOpacity, StyleSheet, Text, View, Image, FlatList } from 'react-native'
-import React, { useLayoutEffect } from 'react';
+import { TouchableOpacity, StyleSheet, Text, View, Image, FlatList, ActivityIndicator } from 'react-native'
+import React, { useLayoutEffect, useState, useEffect } from 'react';
 import { useRoute, useNavigation } from '@react-navigation/native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { GestureHandlerRootView } from 'react-native-gesture-handler'
-
-import { useRouter, useLocalSearchParams } from 'expo-router';
-
-
-// Sample data with title and coordinates
-const DATA = [
-    { id: '1', title: 'Corn', harvest: 'August 15 2024' },
-    { id: '2', title: 'Currot', harvest: 'September 24 2023' },
-    { id: '3', title: 'Wheat', harvest: 'July 24 2022' },
-    { id: '4', title: 'Crop 4', harvest: 'September 24 2021' },
-    { id: '5', title: 'Crop 5', harvest: 'September 24 2023' },
-    { id: '6', title: 'Crop 6', harvest: 'September 24 2023' },
-    { id: '7', title: 'Crop 7', harvest: 'September 24 2023' },
-    { id: '8', title: 'Crop 8', harvest: 'September 24 2023' },
-    { id: '9', title: 'Crop 9', harvest: 'September 24 2023' },
-  ];
+import { SecureStorage } from '@/services/secureStorage';
+import { useRouter } from 'expo-router';
+import { Keyring } from '@polkadot/api'
+import { getClient } from '@kodadot1/uniquery'
+import CryptoJS from "react-native-crypto-js";
 
 type ItemProps = {
   title: string;
   harvest: string;
+  image: string;
   onPress: () => void;
 };
 
-const Item: React.FC<ItemProps> = ({ title, harvest, onPress }) => (
+const Item: React.FC<ItemProps> = ({ title, harvest, image, onPress }) => (
   <TouchableOpacity onPress={onPress}>
   <View style={styles.itemContainer}>
     {/* Icon or Image on the Left */}
     <Image
-      source={require('@/assets/images/Sprout.png')}
+      source={{uri: image}}
       style={styles.image}
     />
     
@@ -45,60 +35,154 @@ const Item: React.FC<ItemProps> = ({ title, harvest, onPress }) => (
 );
 
 const detailField = () => {
-
   const router = useRouter();
-  // Get the title from search params explicitly with type
-  const params = useLocalSearchParams<{ title: string }>();
-  const fieldTitle = params.title;
+  const navigation = useNavigation();
+  const route = useRoute();
+  const { fieldTitle, fieldID } = route.params as { fieldTitle: string, fieldID: string };
+  const [loading, setLoading] = useState(true);
 
+  const [storedPhrase, setStoredPhrase] = useState<string | null>(null);
+  const [password, setPassword] = useState<string | null>(null);
+  const [data, setData] = useState<any[]>([]);
+  const [isLenght, setIsLenght] = useState<boolean>(true);
+
+  // Fetch the stored secret phrase
+  useEffect(() => {
+    const fetchStoredPhrase = async () => {
+      const phrase = await SecureStorage.getSecretPhrase();
+      setStoredPhrase(phrase);
+      const password = await SecureStorage.getSecretPassword();
+      setPassword(password);
+    };
+    fetchStoredPhrase();
+  }, []);
+
+  // Dynamically set the header title
   useLayoutEffect(() => {
-      // Set header title as soon as component mounts
-      router.setParams({
-          headerTitle: fieldTitle || 'Field Details',
-      });
-  }, [fieldTitle]);
+    navigation.setOptions({
+    headerTitle: fieldTitle,  // Set the header title to the item's title
+    });
+  }, [navigation, fieldTitle]);
 
-    const handleItemPress = (title: string) => {
-      router.push({
-        pathname: '/(app)/(field)/cropOrigin',
-        params: { title }
-      });
-    };
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        setData([]);
+        const client = getClient("ahk" as any)
+        const wallet = new Keyring({ type: 'sr25519' });
+        const userWallet = wallet.addFromUri(await SecureStorage.getSecretPhrase() as string);
+        //Convert to Kusama addr
+        const kusamaAddr = wallet.encodeAddress(userWallet.address, 2) ;
+        console.log("toto je field id " + fieldID);
+        const query = client.itemListByCollectionIdAndOwner(fieldID, kusamaAddr);
 
-    const handleAddCrop = () => {
-      router.push({
-        pathname: '/(app)/(field)/addCrop'
-      });
+        try{
+          const result = await client.fetch<any>(query);
+
+          const fetchedData = result.data?.items;
+
+          for (let i = 0; i < fetchedData.length; i++) {
+            const item = fetchedData[i];
+            const metdataIpfsUrl = item.metadata.replace("ipfs://", "https://"+process.env.EXPO_PUBLIC_GATEWAY_URL+"/ipfs/");
+            const metadataResponse = await fetch(metdataIpfsUrl);
+            const metadata = await metadataResponse.json();
+            if (metadata.external_url === "agridot-web3") {
+              
+              // Decryption if the field is private
+              if (metadata.name.startsWith("[Private]")) {
+                const title = metadata.name.replace("[Private]", "");
+                const description = metadata.description.replace("[Private]", "");
+                const image = metadata.image.replace("[Private]", "");
+                const password = await SecureStorage.getSecretPassword();
+                if (password) {
+                  const decriptTitle = CryptoJS.AES.decrypt(title, password).toString(CryptoJS.enc.Utf8);
+                  const decriptDescription = CryptoJS.AES.decrypt(description, password).toString(CryptoJS.enc.Utf8);
+                  let decriptImage = CryptoJS.AES.decrypt(image, password).toString(CryptoJS.enc.Utf8);
+                  decriptImage = decriptImage.replace("ipfs://", "https://"+process.env.EXPO_PUBLIC_GATEWAY_URL+"/ipfs/");
+
+                  setData(data => [...data, { id: item.id, title: decriptTitle, harvest: decriptDescription, image: decriptImage }]);
+                }
+              }
+              // If the field is public
+              else { 
+                const image = metadata.image.replace("ipfs://", "https://"+process.env.EXPO_PUBLIC_GATEWAY_URL+"/ipfs/");
+                setData(data => [...data, { id: item.id, title: metadata.name, harvest: metadata.description, image: image }]);
+              }
+            }
+          }
+          if(fetchedData.length === 0){
+            setIsLenght(false);
+          }
+
+        } catch (error) {
+          console.error('Error fetching data:', error);
+        }
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      }
+      setLoading(false);
     };
-  
+    fetchData();
+  }, []);
+
+
+  const handleItemPress = (cropTitle: string, cropID: string) => {
+    router.push({
+      pathname: '/(app)/(field)/cropOrigin',
+      params: { cropTitle, cropID }
+    });
+  };
+
+  const handleAddCrop = (fieldID: string) => {
+    router.push({
+      pathname: '/(app)/(field)/addCrop',
+      params: { fieldID }
+    });
+  };
+
+  if (loading) {
     return (
-        
-      <GestureHandlerRootView style={{ flex: 1 }}>
-      <SafeAreaView style={{ flex: 1, backgroundColor: 'white' }}>
-        <View style={{ flex: 1 }}>
-          <FlatList
-            data={DATA}
-            keyExtractor={item => item.id}
-            renderItem={({ item }) => (
-              <Item 
-                title={item.title} 
-                harvest={item.harvest} 
-                onPress={() => handleItemPress(item.title)} 
-              />
-            )}
-          />
-          
-          <TouchableOpacity 
-            style={styles.roundButton} 
-            onPress={() => handleAddCrop()}
-          >
-            <Text style={styles.plusIcon}>+</Text>
-          </TouchableOpacity>
-        </View>
-      </SafeAreaView>
-    </GestureHandlerRootView>
-        
+      <View style={styles.container}>
+      <ActivityIndicator size="large" color="#FD47B7"/>
+      </View>
     );
+  }
+  
+  return (
+      
+    <GestureHandlerRootView style={{ flex: 1 }}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: 'white' }}>
+      <View style={{ flex: 1 }}>
+        {!isLenght && (
+          <View style={styles.container}>
+            <Text style={styles.title}>You have no crops for this field</Text>
+          </View>
+        )}
+        <FlatList
+          data={data}
+          keyExtractor={item => item.id}
+          renderItem={({ item }) => (
+            <Item 
+              title={item.title} 
+              harvest={item.harvest} 
+              image={item.image}
+              onPress={() => handleItemPress(item.title, item.id)} 
+            />
+          )}
+        />
+        
+        <TouchableOpacity 
+          style={styles.roundButton} 
+          onPress={() => handleAddCrop(fieldID)}
+        >
+          <Text style={styles.plusIcon}>+</Text>
+        </TouchableOpacity>
+      </View>
+    </SafeAreaView>
+  </GestureHandlerRootView>
+      
+  );
 }
 
 export default detailField

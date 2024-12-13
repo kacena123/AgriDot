@@ -306,7 +306,7 @@ const addField = () => {
       />
       {/* Use My Location button */}
       <CustomButton 
-        title='Use My Lcation' 
+        title='Use My Location' 
         onPress={useMyLocation}
         containerStyles={{ borderRadius: 20, height: 50, marginBottom: 20 }}
         textStyles={{ fontSize: 16 }} 
