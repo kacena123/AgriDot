@@ -5,6 +5,7 @@ import { StatusBar } from 'expo-status-bar'
 import CustomButton from '@/components/CustomButton'
 import DateTimePicker from '@react-native-community/datetimepicker';
 import * as ImagePicker from 'expo-image-picker';
+import { useRoute } from '@react-navigation/native'
 
 import { SecureStorage } from '@/services/secureStorage';
 import { ApiPromise, Keyring, WsProvider } from "@polkadot/api";
@@ -31,6 +32,9 @@ const addCrop = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [showCreatingdModal, setShowCreatingdModal] = useState(false);
   const [showSuccesfuldModal, setShowSuccesfuldModal] = useState(false);
+
+  const route = useRoute();
+  const { fieldID } = route.params as { fieldID: string };
 
   // Fetch the stored secret phrase
   useEffect(() => {
@@ -85,7 +89,7 @@ const addCrop = () => {
 
     console.log("creating crop");
 
-    const fieldCollectionId = 29; 
+    const fieldCollectionId = parseInt(fieldID); 
     const privateCol = true; 
 
 
@@ -207,8 +211,6 @@ const addCrop = () => {
               assignMetadata,
             ];
 
-            console.log(nextItemId)
-
             const batchAllTx = api.tx.utility.batchAll(calls);
 
             await new Promise((resolve, reject) => {
@@ -235,6 +237,14 @@ const addCrop = () => {
         console.log(error);
       }
 
+  };
+
+  const handleReturn = (fieldID: string) => {
+    setShowSuccesfuldModal(false);
+    router.push({
+      pathname: '/(app)/(field)/detailField',
+      params: { fieldID }
+    });
   };
 
   return (
@@ -322,7 +332,7 @@ const addCrop = () => {
               <View style={{paddingLeft: 10, paddingRight: 10}}>
                 <CustomButton 
                   title="Close and go to my crops"
-                  onPress={() => {setShowSuccesfuldModal(false), router.push('/(app)/(field)/detailField')}}
+                  onPress={() => {handleReturn(fieldID)}}
                   containerStyles={{ height: 50,}}
                   textStyles={{ fontSize: 16 }}
                 />
