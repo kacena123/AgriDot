@@ -120,16 +120,11 @@ const profile = () => {
   return (
     <ScrollView style={styles.wrapper}>
     <SafeAreaView>
-      <View style={{ width: '100%' }}>
+      <View style={{ height:55, alignItems: 'center' }}>
         <Image
-          source={require('@/assets/images/green_rectangle.png')}
+          source={require('@/assets/images/Secured_by_polkadot_white.png')}
           style={styles.topImage}
-          resizeMode="cover"
-        />
-        <Image
-          source={require('@/assets/images/secured_by_polkadot.png')}
-          style={styles.topImageOverlay}
-          resizeMode="contain"
+          resizeMode='contain'
         />
       </View>
 
@@ -151,7 +146,7 @@ const profile = () => {
         <Text style={styles.textLink}> <Link href='https://polkadot.network/'>Click here to learn more.</Link></Text>
       </View>
 
-      <View style={{ alignItems: 'center', marginTop: 200 }}>
+      <View style={{ alignItems: 'center', marginTop: 230 }}>
         <Image
           source={require('@/assets/images/Agridot_logo.png')}
           style={{ width: 300, height: 70 }}
@@ -177,6 +172,8 @@ const profile = () => {
                   title='Log out' 
                   onPress={() => {
                     console.log('logout');
+                    SecureStorage.removeSecretPassword();
+                    SecureStorage.removeSecretPhrase();
                     signOut();
                   }} 
                   containerStyles={{ backgroundColor: '#145E2F', height: 55, marginTop: 10, marginBottom: 20 }}
@@ -434,7 +431,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   textContainer: {
-    marginTop: 60,
+    marginTop: 40,
     alignItems: 'center',
     paddingHorizontal: 20,
   },
@@ -458,14 +455,10 @@ const styles = StyleSheet.create({
     textDecorationLine: 'underline',
   },
   topImage: {
-    width: '100%',
+    width: '60%',
     height: 100,
     position: 'absolute',
-    top: 0,
-  },
-  topImageOverlay: {
-    alignSelf: 'center',
-    top: 40,
+    top: 10,
   },
   imageRow: {
     flexDirection: 'row',
