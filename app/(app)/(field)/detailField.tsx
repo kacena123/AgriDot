@@ -38,7 +38,7 @@ const detailField = () => {
   const router = useRouter();
   const navigation = useNavigation();
   const route = useRoute();
-  const { fieldTitle, fieldID } = route.params as { fieldTitle: string, fieldID: string };
+  const { fieldTitle, fieldID, isPrivate } = route.params as { fieldTitle: string, fieldID: string, isPrivate: string };
   const [loading, setLoading] = useState(true);
 
   const [storedPhrase, setStoredPhrase] = useState<string | null>(null);
@@ -134,10 +134,10 @@ const detailField = () => {
     });
   };
 
-  const handleAddCrop = (fieldID: string) => {
+  const handleAddCrop = (fieldID: string, isPrivate: string) => {
     router.push({
       pathname: '/(app)/(field)/addCrop',
-      params: { fieldID }
+      params: { fieldID, isPrivate }
     });
   };
 
@@ -174,7 +174,7 @@ const detailField = () => {
         
         <TouchableOpacity 
           style={styles.roundButton} 
-          onPress={() => handleAddCrop(fieldID)}
+          onPress={() => handleAddCrop(fieldID, isPrivate)}
         >
           <Text style={styles.plusIcon}>+</Text>
         </TouchableOpacity>
@@ -206,7 +206,7 @@ const styles = StyleSheet.create({
   image: {
     width: 50,
     height: 50,
-    //borderRadius: 25, // Make the image circular
+    borderRadius: 5,
     marginRight: 15, 
   },
   textContainer: {

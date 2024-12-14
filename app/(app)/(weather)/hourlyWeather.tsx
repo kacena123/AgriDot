@@ -175,7 +175,7 @@ const HourlyWeather = () => {
         <HourlyIcon style={{marginRight: 7}} width={80} height={70} />
 
         <View style={{alignItems: 'center', width: 70}}>
-          <Text style={{fontFamily: 'DMSans', fontSize:24}}>{item.temperature2m}°C</Text>
+          <Text style={{fontFamily: 'DMSans', fontSize:22}}>{item.temperature2m}°C</Text>
         </View>
 
         <View style={{flexDirection: 'column', alignItems: 'center', marginLeft: 7}}>

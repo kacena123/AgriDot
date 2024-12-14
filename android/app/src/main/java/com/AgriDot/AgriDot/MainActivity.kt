@@ -1,4 +1,4 @@
-package com.yourapp.agridot
+package com.AgriDot.AgriDot
 import expo.modules.splashscreen.SplashScreenManager
 
 import android.os.Build

@@ -1,4 +1,4 @@
-package com.yourapp.agridot
+package com.AgriDot.AgriDot
 
 import android.app.Application
 import android.content.res.Configuration

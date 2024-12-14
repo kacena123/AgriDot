@@ -95,6 +95,7 @@ const addField = () => {
         console.log("Password is set: ", password);
       }
     }
+    setShowCreatingdModal(true);
 
     if (!storedPhrase) {
       throw new Error("SECRET_KEY is not defined in the environment variables");
@@ -242,6 +243,8 @@ const addField = () => {
                   }
                 } else {
                   console.log("Field created");
+                  // Set 10 s timeout to wait for the chain to update
+                  setTimeout(() => {}, 10000);
                   setShowCreatingdModal(false);
                   setShowSuccesfuldModal(true);
                   setIsLoading(false);
@@ -319,7 +322,7 @@ const addField = () => {
         </View>
           ) : (
         <CustomButton title='Add Field' 
-          onPress={() => { setIsLoading(true), setShowCreatingdModal(true), handleFieldCreate() }}
+          onPress={() => { setIsLoading(true), handleFieldCreate() }}
           containerStyles={{ borderRadius: 20, height: 50, backgroundColor: '#145E2F' }}
           textStyles={{ fontSize: 18 }}
         />
@@ -349,7 +352,7 @@ const addField = () => {
               <View style={{paddingLeft: 50, paddingRight: 50}}>
                 <CustomButton 
                   title="Go to Profile"
-                  onPress={() => router.push('/(app)/(tabs)/profile')}
+                  onPress={() => {router.push('/(app)/(tabs)/profile'), setShowPasswordModal(false)}}
                   containerStyles={{ height: 50,}}
                   textStyles={{ fontSize: 18 }}
                 />

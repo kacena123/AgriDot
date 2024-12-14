@@ -55,12 +55,15 @@ const weather = () => {
                 const image = metadata.image.replace("[Private]", "");
                 const password = await SecureStorage.getSecretPassword();
                 if (password) {
+                  try {
                   const decriptTitle = CryptoJS.AES.decrypt(title, password).toString(CryptoJS.enc.Utf8);
                   const decriptDescription = CryptoJS.AES.decrypt(description, password).toString(CryptoJS.enc.Utf8);
                   let decriptImage = CryptoJS.AES.decrypt(image, password).toString(CryptoJS.enc.Utf8);
                   decriptImage = decriptImage.replace("ipfs://", "https://"+process.env.EXPO_PUBLIC_GATEWAY_URL+"/ipfs/");
-
-                  setLocations(locations => [...locations, { id: item.id, title: decriptTitle, coordinates: decriptDescription, image: decriptImage }]);
+                  if (decriptTitle && decriptDescription && decriptImage) {
+                    setLocations(locations => [...locations, { id: item.id, title: decriptTitle, coordinates: decriptDescription, image: decriptImage }]);
+                  }
+                  } catch (error) {}
                 }
               }
               // If the field is public

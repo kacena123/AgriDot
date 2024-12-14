@@ -72,12 +72,12 @@ const Fields = () => {
 
         try{
           const result = await client.fetch<any>(query);
-        
-          console.log(result.data?.collections);
+         
           setFetchedData(result.data?.collections);
 
           const fetchedData = result.data?.collections;
           for (let i = 0; i < fetchedData.length; i++) {
+            
             const item = fetchedData[i];
             const metdataIpfsUrl = item.metadata.replace("ipfs://", "https://"+process.env.EXPO_PUBLIC_GATEWAY_URL+"/ipfs/");
             const metadataResponse = await fetch(metdataIpfsUrl);
@@ -91,18 +91,23 @@ const Fields = () => {
                 const image = metadata.image.replace("[Private]", "");
                 const password = await SecureStorage.getSecretPassword();
                 if (password) {
-                  const decriptTitle = CryptoJS.AES.decrypt(title, password).toString(CryptoJS.enc.Utf8);
-                  const decriptDescription = CryptoJS.AES.decrypt(description, password).toString(CryptoJS.enc.Utf8);
-                  let decriptImage = CryptoJS.AES.decrypt(image, password).toString(CryptoJS.enc.Utf8);
-                  decriptImage = decriptImage.replace("ipfs://", "https://"+process.env.EXPO_PUBLIC_GATEWAY_URL+"/ipfs/");
-
-                  setData(data => [...data, { id: item.id, title: decriptTitle, coordinates: decriptDescription, image: decriptImage }]);
+                  try{
+                    const decriptTitle = CryptoJS.AES.decrypt(title, password).toString(CryptoJS.enc.Utf8);
+                    const decriptDescription = CryptoJS.AES.decrypt(description, password).toString(CryptoJS.enc.Utf8);
+                    let decriptImage = CryptoJS.AES.decrypt(image, password).toString(CryptoJS.enc.Utf8);
+                    decriptImage = decriptImage.replace("ipfs://", "https://"+process.env.EXPO_PUBLIC_GATEWAY_URL+"/ipfs/");
+                    if (decriptTitle && decriptDescription && decriptImage) {
+                      setData(data => [...data, { id: item.id, title: decriptTitle, coordinates: decriptDescription, image: decriptImage, private: "true" }]);
+                    } 
+                  } 
+                  catch (error) {
+                  }
                 }
               }
               // If the field is public
               else { 
                 const image = metadata.image.replace("ipfs://", "https://"+process.env.EXPO_PUBLIC_GATEWAY_URL+"/ipfs/");
-                setData(data => [...data, { id: item.id, title: metadata.name, coordinates: metadata.description, image: image }]);
+                setData(data => [...data, { id: item.id, title: metadata.name, coordinates: metadata.description, image: image, private: "false" }]);
               }
             }
           }
@@ -118,11 +123,11 @@ const Fields = () => {
     fetchData();
   }, []);
   
-  const handleItemPress = (fieldTitle: string, fieldID: string) => {
+  const handleItemPress = (fieldTitle: string, fieldID: string, isPrivate: string) => {
     //navigation.navigate('/(app)/(field)/detailField', { title });
     router.push({
       pathname: '/(app)/(field)/detailField',
-      params: { fieldTitle, fieldID },
+      params: { fieldTitle, fieldID, isPrivate },
     });
   };
 
@@ -159,7 +164,7 @@ const Fields = () => {
                 title={item.title} 
                 coordinates={item.coordinates} 
                 image={item.image}
-                onPress={() => handleItemPress(item.title, item.id)} 
+                onPress={() => handleItemPress(item.title, item.id, item.private)} 
               />
             )}
           />
