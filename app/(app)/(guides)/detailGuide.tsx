@@ -17,7 +17,6 @@ const detailGuide = () => {
   const route = useRoute();
   const navigation = useNavigation();
   const { title } = route.params as { title: string };  // Extract title from route params
-  console.log('Title:', title); 
 
   const [storedPhrase, setStoredPhrase] = useState<string | null>(null);
 
@@ -85,8 +84,6 @@ const detailGuide = () => {
                 reject(new Error(dispatchError.toString()));
               }
             } else {
-              console.log("HI");
-              console.log(txHash.toString());
               setShowDonateModal(false);
               setShowConfirmModal(false);
               console.log("Transaction passed")
@@ -120,7 +117,7 @@ const detailGuide = () => {
           count: 1
         });
       }
-      console.log(`Successfully liked guide: ${guideID}`);
+      console.log(`Successfully liked guide`);
     } catch (error) {
       console.error("Error giving like:", error);
     }
@@ -142,7 +139,7 @@ const detailGuide = () => {
           count: 1
         });
       }
-      console.log(`Successfully reported guide: ${guideID}`);
+      console.log(`Successfully reported guide`);
     } catch (error) {
       console.error("Error reporting guide:", error);
     }

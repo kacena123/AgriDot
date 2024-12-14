@@ -137,9 +137,6 @@ const addPest = () => {
     try {
       // Generate a filename
       const filename = `upload-${Date.now()}${Platform.OS === "ios" ? ".jpg" : ""}`;
-      console.log("Filename is", filename);
-      console.log("Selected image is", selectedImage);
-      console.log("Mime type is", mimeType);
       // Check if an image is selected
       if (!selectedImage) {
         throw new Error("No image selected");
@@ -168,7 +165,6 @@ const addPest = () => {
 
 
       const meta = await pinataService.uploadJSON(body);
-      console.log("Uploaded to Pinata", meta);
 
       const fetchedData = await fetch(meta.pinataUrl);
       const data = await fetchedData.json();
@@ -224,8 +220,6 @@ const addPest = () => {
                       reject(new Error(dispatchError.toString()));
                     }
                   } else {
-                      console.log(txHash.toString());
-                      console.log("HI");
                       setShowTransactionModal(false);
                       setShowCreatingdModal(true)
                       //further will happen on the server
@@ -241,7 +235,6 @@ const addPest = () => {
                       }
                       )
                       const respJson = await resp.json();
-                      console.log(respJson.status);
 
                       setShowCreatingdModal(false);
                       if (respJson.status === "Success") {
@@ -252,7 +245,6 @@ const addPest = () => {
                         console.log("Pest report creation failed");
                         setShowFaileddModal(true);
                       }
-                      console.log("HEHE")
                   }
                 }
               });

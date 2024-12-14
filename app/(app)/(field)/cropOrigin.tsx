@@ -26,7 +26,6 @@ const cropOrigin = () => {
   const { cropID } = route.params as { 
     cropID: string;
   };
-  console.log('Crop ID:', cropID);
 
   const url = "https://kodadot.xyz/ahk/gallery/" + cropID;
   const base64Logo = '@/assets/images/logo_QR.png'
@@ -70,8 +69,7 @@ const cropOrigin = () => {
       <Text style={styles.text}>Immutable proof of crop origin</Text>
       {/* Wrap the Image in ViewShot to capture it */}
       <View style={{marginBottom:30}}>
-        <ViewShot ref={viewShotRef} options={{ format: 'png', quality: 1.0 }} 
-        onCapture={(uri) => console.log('Captured URI:', uri)}>
+        <ViewShot ref={viewShotRef} options={{ format: 'png', quality: 1.0 }}>
           <View style={{ backgroundColor: 'white'}}>
           <QRCode
             value={url}

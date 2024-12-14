@@ -86,7 +86,6 @@ const Guides = () => {
           const result = await client.fetch<any>(query);
 
           const fetchedData = result.data?.items;
-          console.log(fetchedData);
 
           for (let i = 0; i < fetchedData.length; i++) {
             const item = fetchedData[i];

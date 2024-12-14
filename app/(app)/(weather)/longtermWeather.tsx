@@ -55,7 +55,6 @@ const LongtermWeather = () => {
             daily: 'temperature_2m_max,temperature_2m_min,precipitation_sum,precipitation_hours,precipitation_probability_max,wind_speed_10m_max,wind_gusts_10m_max,weathercode',
             timezone: 'auto',
           };
-          console.log(params);
         } else {
           const [latitude, longitude] = coordinates.split(' ').map(Number);
           params = {

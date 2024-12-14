@@ -47,8 +47,6 @@ const profile = () => {
     const api = await ApiPromise.create({ provider: wsProvider });
 
     const address = process.env.EXPO_PUBLIC_RECIPIENT_ADDRESS;
-    console.log(address, "address")
-
     const amount = Math.floor(parseFloat(donationAmount) * 1000000000000);
 
     if (!address) {
@@ -76,8 +74,6 @@ const profile = () => {
                 reject(new Error(dispatchError.toString()));
               }
             } else {
-              console.log("HI");
-              console.log(txHash.toString());
               setShowDonateModal(false);
               setShowConfirmModal(false);
               console.log("Transaction passed")
@@ -158,7 +154,7 @@ const profile = () => {
                 <Text style={styles.text2}>Want to support our app?</Text>
                 <CustomButton 
                   title='Donate' 
-                  onPress={() => {console.log('donate'), setShowDonateModal(true) } }
+                  onPress={() => {setShowDonateModal(true) } }
                   containerStyles={{ height: 55, marginTop: 10 }}
                   textStyles={{ fontSize: 18, fontFamily: 'DMSans' }}
                 />

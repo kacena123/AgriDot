@@ -74,7 +74,6 @@ const detailField = () => {
         const userWallet = wallet.addFromUri(await SecureStorage.getSecretPhrase() as string);
         //Convert to Kusama addr
         const kusamaAddr = wallet.encodeAddress(userWallet.address, 2) ;
-        console.log("toto je field id " + fieldID);
         const query = client.itemListByCollectionIdAndOwner(fieldID, kusamaAddr);
 
         try{

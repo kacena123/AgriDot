@@ -16,7 +16,6 @@ const detailPest = () => {
     const router = useRouter();
     const navigation = useNavigation();
     const { title } = route.params as { title: string };  // Extract title from route params
-    console.log('Title:', title); 
 
     const [storedPhrase, setStoredPhrase] = useState<string | null>(null);
 
@@ -102,8 +101,6 @@ const detailPest = () => {
                   reject(new Error(dispatchError.toString()));
                 }
               } else {
-                console.log("HI");
-                console.log(txHash.toString());
                 setShowDonateModal(false);
                 setShowConfirmModal(false);
                 console.log("Transaction passed")
@@ -137,7 +134,7 @@ const detailPest = () => {
           count: 1
         });
       }
-      console.log(`Successfully reported pest: ${pestID}`);
+      console.log(`Successfully reported pest`);
     } catch (error) {
       console.error("Error reporting pest:", error);
     }

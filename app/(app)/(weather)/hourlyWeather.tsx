@@ -58,7 +58,6 @@ const HourlyWeather = () => {
             hourly: 'temperature_2m,weather_code,is_day,cloudcover,precipitation,rain,showers,snowfall,windspeed_10m',
             timezone: "auto",
           };
-          console.log(params);
         } else {
           const [latitude, longitude] = coordinates.split(' ').map(Number);
           params = {

@@ -62,7 +62,6 @@ const CurrentWeather = () => {
             hourly: 'temperature_2m,weather_code,is_day',
             timezone: "auto",
           };
-          console.log(params);
         } else {
           const [latitude, longitude] = coordinates.split(' ').map(Number);
           params = {

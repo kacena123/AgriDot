@@ -93,8 +93,6 @@ const addCrop = () => {
 
     const fieldCollectionId = parseInt(fieldID); 
     let privateCol = isPrivate;
-    console.log("Is private collection", privateCol);
-    console.log(!privateCol);
 
     //Choose crop name
     if(!cropName) {
@@ -133,7 +131,6 @@ const addCrop = () => {
           });
 
         if (privateCol === true) {
-          console.log("Private collection");
           if (!password) {
             throw new Error("Password is required for private collections");
           }
@@ -159,8 +156,6 @@ const addCrop = () => {
          });
        }
         const meta = await pinataService.uploadJSON(body);
-        console.log("Uploaded to Pinata", meta);
-  
             const wsProvider = new WsProvider(process.env.EXPO_PUBLIC_WS_ENDPOINT);
             const api = await ApiPromise.create({ provider: wsProvider });
 
@@ -179,9 +174,7 @@ const addCrop = () => {
                   nextItemId += 1;
                 }
             
-              } catch (error) {
-                console.log("Error getting NFT id", error);
-              }
+              } catch (error) {}
             const create = api.tx.nfts.mint(fieldCollectionId,nextItemId, AgriDotSigner.address, null);
             const assignMetadata = api.tx.nfts.setMetadata(fieldCollectionId,nextItemId, "ipfs://"+meta.ipfsHash);
 
@@ -191,7 +184,6 @@ const addCrop = () => {
             ];
 
             const batchAllTx = api.tx.utility.batchAll(calls);
-            console.log(body);
             await new Promise((resolve, reject) => {
               batchAllTx.signAndSend(AgriDotSigner, async ({ status, dispatchError }) => {
                 if (status.isFinalized) {

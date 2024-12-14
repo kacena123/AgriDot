@@ -37,7 +37,6 @@ const weather = () => {
         try{
           const result = await client.fetch<any>(query);
         
-          console.log(result.data?.collections);
           //setFetchedData(result.data?.collections);
 
           const fetchedData = result.data?.collections;

@@ -56,7 +56,6 @@ const NearbyPests = () => {
   const [showFilterModal, setShowFilterModal] = useState(false);
 
   const handleItemPress = (title: string, description: string, fields: string[], distances: any, date: string, image: string, pestID: string, owner: string) => {
-      console.log('Item pressed:', pestID);
       router.push({
         pathname: '/(app)/(pests)/detailPest',
         params: { title, description, fields, distances, date, image, pestID, owner },

@@ -91,9 +91,6 @@ const addField = () => {
         setShowPasswordModal(true);
         return;
       }
-      else {
-        console.log("Password is set: ", password);
-      }
     }
     setShowCreatingdModal(true);
 
@@ -109,28 +106,17 @@ const addField = () => {
           console.log("Field name is required");
           return;
         }
-        console.log("Field name is", fieldName);
 
-        //Choose field location
-        if (latitude === "" || latitude === null || latitude === undefined) {
-          console.log("Field name is required");
+        // Choose field location
+        if (!latitude || !longitude) {
+          console.log("Field location (latitude and longitude) is required");
           return;
         }
-        console.log("Field latitude", latitude);
-
-        if (longitude === "" || longitude === null || longitude === undefined) {
-          console.log("Field name is required");
-          return;
-        }
-        console.log("Field longitude", longitude);
 
         //Upload the details to IPFS
         try {
          // Generate a filename
          const filename = `upload-${Date.now()}${Platform.OS === "ios" ? ".jpg" : ""}`;
-          console.log("Filename is", filename);
-          console.log("Selected image is", selectedImage);
-          console.log("Mime type is", mimeType);
          // Check if an image is selected
          if (!selectedImage) {
           throw new Error("No image selected");
@@ -181,31 +167,10 @@ const addField = () => {
          }
 
         const meta = await pinataService.uploadJSON(body);
-        console.log("Uploaded to Pinata", meta);
 
           const fetchedData = await fetch(meta.pinataUrl);
           const data = await fetchedData.json();
           
-          if(isPrivate) {
-            if (!password) {
-              setShowPasswordModal(true);
-              return;
-            }
-
-            let bytes = CryptoJS.AES.decrypt(data.name.replace("[Private]", ""), password);
-            let originalName = bytes.toString(CryptoJS.enc.Utf8);
-            bytes  = CryptoJS.AES.decrypt(data.description.replace("[Private]", ""), password);
-            let originalDescription = bytes.toString(CryptoJS.enc.Utf8);
-            bytes  = CryptoJS.AES.decrypt(data.image.replace("[Private]", ""), password);
-            let originalImage = bytes.toString(CryptoJS.enc.Utf8);
-            bytes  = CryptoJS.AES.decrypt(data.type.replace("[Private]", ""), password);
-            let originalType = bytes.toString(CryptoJS.enc.Utf8);
-
-            console.log("Decrypted name", originalName);
-            console.log("Decrypted description", originalDescription);
-            console.log("Decrypted image", originalImage);
-            console.log("Decrypted type", originalType);
-          }
           const wsProvider = new WsProvider(process.env.EXPO_PUBLIC_WS_ENDPOINT);
           const api = await ApiPromise.create({ provider: wsProvider });
 

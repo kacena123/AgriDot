@@ -111,9 +111,6 @@ const addGuide = () => {
     try {
        // Generate a filename
        const filename = `upload-${Date.now()}${Platform.OS === "ios" ? ".jpg" : ""}`;
-       console.log("Filename is", filename);
-       console.log("Selected image is", selectedImage);
-       console.log("Mime type is", mimeType);
         // Check if an image is selected
         if (!selectedImage) {
         throw new Error("No image selected");
@@ -135,7 +132,6 @@ const addGuide = () => {
       });
 
       const meta = await pinataService.uploadJSON(body);
-      console.log("Uploaded to Pinata", meta);
 
         const wsProvider = new WsProvider(process.env.EXPO_PUBLIC_WS_ENDPOINT);
         const api = await ApiPromise.create({ provider: wsProvider });
@@ -188,8 +184,6 @@ const addGuide = () => {
                       reject(new Error(dispatchError.toString()));
                     }
                   } else {
-                      console.log(txHash.toString());
-                      console.log("HI");
                       setShowTransactionModal(false);
                       setShowCreatingdModal(true)
                       //further will happen on the server side
@@ -206,7 +200,6 @@ const addGuide = () => {
                       )
                       
                       const respJson = await resp.json();
-                      console.log(respJson.status);
 
                       setShowCreatingdModal(false);
                       if (respJson.status === "Success") {
@@ -217,7 +210,6 @@ const addGuide = () => {
                         console.log("Guide creation failed");
                         setShowFaileddModal(true);
                       }
-                      console.log("HEHE")
                   }
                 }
               });
