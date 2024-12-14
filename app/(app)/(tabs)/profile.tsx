@@ -49,7 +49,7 @@ const profile = () => {
     const address = process.env.EXPO_PUBLIC_RECIPIENT_ADDRESS;
     console.log(address, "address")
 
-    const amount = Math.floor(parseFloat(donationAmount) * 10000000000);
+    const amount = Math.floor(parseFloat(donationAmount) * 1000000000000);
 
     if (!address) {
       throw new Error("Recipient address is not defined in the environment variables");
@@ -207,7 +207,7 @@ const profile = () => {
                 value={donationAmount}
                 onChangeText={setDonationAmount}
                 keyboardType="numeric"
-                placeholder="1 DOT"
+                placeholder="1 KSM"
               />
               
               <View style={{paddingLeft: 50, paddingRight: 50}}>

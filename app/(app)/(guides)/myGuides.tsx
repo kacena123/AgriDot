@@ -9,7 +9,8 @@ import { useRouter } from 'expo-router';
 import { Keyring } from '@polkadot/api'
 import { getClient } from '@kodadot1/uniquery'
 import { SecureStorage } from '@/services/secureStorage';
-
+import { db } from '@/services/firebaseConfig';
+import { doc, getDoc } from 'firebase/firestore';
 
 type ItemProps = {
   title: string;
@@ -50,10 +51,10 @@ const MyGuides = () => {
   const [isLenght, setIsLenght] = useState<boolean>(true);
   const [loading, setLoading] = useState(true);
 
-  const handleItemPress = (title: string, description: string, image: string ) => {
+  const handleItemPress = (title: string, description: string, image: string, guideID: string, owner: string ) => {
     router.push({
       pathname: '/(app)/(guides)/detailGuide',
-      params: { title, description, image },
+      params: { title, description, image, guideID, owner },
     });
   };
 
@@ -62,6 +63,18 @@ const MyGuides = () => {
       pathname: '/(app)/(guides)/addGuide',
     });
   };
+
+  const getLikesCount = async (guideId: string): Promise<number> => {
+    try {
+      const likeRef = doc(db, 'likes', guideId);
+      const likeDoc = await getDoc(likeRef);
+      return likeDoc.exists() ? likeDoc.data().count : 0;
+    } catch (error) {
+      console.error("Error fetching likes:", error);
+      return 0;
+    }
+  };
+
 
   useEffect(() => {
     const fetchData = async () => {
@@ -87,7 +100,16 @@ const MyGuides = () => {
             const metadata = await metadataResponse.json();
             if (metadata.external_url === "agridot-web3") {
               const image = metadata.image.replace("ipfs://", "https://"+process.env.EXPO_PUBLIC_GATEWAY_URL+"/ipfs/");
-              setData(data => [...data, { id: item.id, title: metadata.name, dateAdded: new Date(item.createdAt).toLocaleDateString(), description: metadata.description, image: image, likes: 20 }]);
+              const likes = await getLikesCount(item.id);
+              const owner = metadata.owner;
+              setData(data => [...data, { 
+                id: item.id, title: metadata.name, 
+                dateAdded: new Date(item.createdAt).toLocaleDateString(), 
+                description: metadata.description, 
+                image: image, 
+                likes: likes,
+                owner: owner
+              }]);
             }
           }
           if(fetchedData.length === 0){
@@ -131,7 +153,7 @@ const MyGuides = () => {
               dateAdded={item.dateAdded}
               likes={item.likes}
               image={item.image}
-              onPress={() => handleItemPress(item.title, item.description, item.image)} 
+              onPress={() => handleItemPress(item.title, item.description, item.image, item.id, item.owner)} 
             />
           )}
         />

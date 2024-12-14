@@ -1,16 +1,18 @@
 import { StyleSheet, Text, View, ScrollView, Image , Modal, TextInput, TouchableOpacity, ActivityIndicator} from 'react-native'
 import React, { useLayoutEffect, useEffect, useState } from 'react';
 import { useRoute, useNavigation } from '@react-navigation/native'
-import { Ionicons } from '@expo/vector-icons';
 import CustomButton from '@/components/CustomButton';
 import { SecureStorage } from '@/services/secureStorage';
 import { ApiPromise, WsProvider } from '@polkadot/api';
 import { Keyring } from '@polkadot/keyring';
-import { useSession } from '@/context/ctx';
 import { FontAwesome6 } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
+import { db } from '@/services/firebaseConfig';
+import { doc, getDoc, setDoc, updateDoc } from 'firebase/firestore';
 
 const detailGuide = () => {
+
+
   const router = useRouter();
   const route = useRoute();
   const navigation = useNavigation();
@@ -23,14 +25,17 @@ const detailGuide = () => {
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [showThankingModal, setShowThankingModal] = useState(false);
   const [donationAmount, setDonationAmount] = useState('1');
+  const [showReportModal, setShowReportModal] = useState(false);
 
   const [isLoading, setIsLoading] = useState(false);
 
   // Update the type definition to include all passed params
-  const { description, image } = route.params as { 
+  const { description, image, guideID, owner } = route.params as { 
     title: string;
     description: string;
     image: string;
+    guideID: string;
+    owner: string;
   };
 
   // Fetch the stored secret phrase
@@ -55,9 +60,9 @@ const detailGuide = () => {
     const wsProvider = new WsProvider(process.env.EXPO_PUBLIC_WS_ENDPOINT);
     const api = await ApiPromise.create({ provider: wsProvider });
 
-    const address = process.env.EXPO_PUBLIC_RECIPIENT_ADDRESS;
+    const address = owner;
 
-    const amount = Math.floor(parseFloat(donationAmount) * 10000000000);
+    const amount = Math.floor(parseFloat(donationAmount) * 1000000000000);
 
     const call = api.tx.balances.transferKeepAlive(address, amount);
 
@@ -86,6 +91,7 @@ const detailGuide = () => {
               setShowConfirmModal(false);
               console.log("Transaction passed")
               setShowThankingModal(true);
+              giveLike(guideID);
             }
           }
         });
@@ -95,8 +101,52 @@ const detailGuide = () => {
     } finally {
       setIsLoading(false);
     }
-    
   };
+
+  // Add this function to your component
+  const giveLike = async (guideID: string) => {
+    try {
+      const likeRef = doc(db, 'likes', guideID);
+      const likeDoc = await getDoc(likeRef);
+
+      if (likeDoc.exists()) {
+        // Document exists - increment likes
+        await updateDoc(likeRef, {
+          count: (likeDoc.data().count || 0) + 1
+        });
+      } else {
+        // Document doesn't exist - create with count 1
+        await setDoc(likeRef, {
+          count: 1
+        });
+      }
+      console.log(`Successfully liked guide: ${guideID}`);
+    } catch (error) {
+      console.error("Error giving like:", error);
+    }
+  };
+
+  const sendReportGuide = async (guideID: string) => {
+    try {
+      const reportRef = doc(db, 'reports-guides', guideID);
+      const reportDoc = await getDoc(reportRef);
+
+      if (reportDoc.exists()) {
+        // Document exists - increment reports
+        await updateDoc(reportRef, {
+          count: (reportDoc.data().count || 0) + 1
+        });
+      } else {
+        // Document doesn't exist - create with count 1
+        await setDoc(reportRef, {
+          count: 1
+        });
+      }
+      console.log(`Successfully reported guide: ${guideID}`);
+    } catch (error) {
+      console.error("Error reporting guide:", error);
+    }
+  }
   
   return (
     <ScrollView contentContainerStyle={styles.wrapper}>
@@ -109,7 +159,7 @@ const detailGuide = () => {
       </Text>
 
       <CustomButton title="Report guide" 
-        onPress={() => {router.push({ pathname: '/(app)/(guides)/reportGuide' })} }
+        onPress={() => {setShowReportModal(true)} }
         containerStyles={{ borderRadius: 20, height: 52, backgroundColor: '#145E2F', marginTop: 30, marginBottom: 10 }}
         textStyles={{ fontSize: 18 }}
       />
@@ -145,7 +195,7 @@ const detailGuide = () => {
                 value={donationAmount}
                 onChangeText={setDonationAmount}
                 keyboardType="numeric"
-                placeholder="1 DOT"
+                placeholder="1 KSM"
               />
               
               <View style={{paddingLeft: 50, paddingRight: 50}}>
@@ -183,7 +233,7 @@ const detailGuide = () => {
                 {isLoading ? (
                   <Text>Please wait while we process your donation...</Text>
                   ) : (
-                    <Text>Are you sure you want to donate {donationAmount} DOT?</Text>
+                    <Text>Are you sure you want to donate {donationAmount} KSM?</Text>
                   )
                 }
               </Text>
@@ -229,6 +279,36 @@ const detailGuide = () => {
                 <CustomButton 
                   title="Close"
                   onPress={() => setShowThankingModal(false)}
+                  containerStyles={{ height: 50}}
+                  textStyles={{ fontSize: 16 }}
+                />
+              </View>
+            </View>
+          </View>
+        </Modal>
+
+        {/* Report modal */}
+        <Modal
+          visible={showReportModal}
+          transparent={true}
+          animationType="fade"
+        >
+          <View style={styles.modalOverlay}>
+            <View style={styles.modalContent}>
+            
+              <TouchableOpacity 
+                style={styles.closeButton}
+                onPress={() => setShowReportModal(false)}
+              >
+                <Text style={styles.closeButtonText}>×</Text>
+              </TouchableOpacity>
+            
+              <Text style={styles.modalTitle}>Are you sure you want to report this guide?</Text>
+
+              <View style={{paddingLeft: 50, paddingRight: 50}}>
+                <CustomButton 
+                  title="Report"
+                  onPress={() => {setShowReportModal(false), sendReportGuide(guideID)}}
                   containerStyles={{ height: 50}}
                   textStyles={{ fontSize: 16 }}
                 />
