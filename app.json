@@ -16,14 +16,12 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.AgriDot.AgriDot",
-      "googleServicesFile": "./GoogleService-Info.plist",
       "infoPlist": {
         "UIStatusBarStyle": "UIStatusBarStyleLightContent"
       }
     },
     "android": {
       "package": "com.AgriDot.AgriDot",
-      "googleServicesFile": "./google-services.json",
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
