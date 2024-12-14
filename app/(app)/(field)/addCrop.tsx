@@ -20,6 +20,8 @@ const addCrop = () => {
   const [date, setDate] = useState(new Date());
   const [show, setShow] = useState(false);
 
+  const {isPrivate} = useRoute().params as {isPrivate: boolean};
+
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [mimeType, setMimeType] = useState<string | null>(null);
 
@@ -90,8 +92,9 @@ const addCrop = () => {
     console.log("creating crop");
 
     const fieldCollectionId = parseInt(fieldID); 
-    const privateCol = true; 
-
+    let privateCol = isPrivate;
+    console.log("Is private collection", privateCol);
+    console.log(!privateCol);
 
     //Choose crop name
     if(!cropName) {
@@ -108,9 +111,6 @@ const addCrop = () => {
         try {
            // Generate a filename
            const filename = `upload-${Date.now()}${Platform.OS === "ios" ? ".jpg" : ""}`;
-           console.log("Filename is", filename);
-           console.log("Selected image is", selectedImage);
-           console.log("Mime type is", mimeType);
           // Check if an image is selected
           if (!selectedImage) {
            throw new Error("No image selected");
@@ -132,7 +132,8 @@ const addCrop = () => {
             type: mimeType,
           });
 
-        if (privateCol) {
+        if (privateCol === true) {
+          console.log("Private collection");
           if (!password) {
             throw new Error("Password is required for private collections");
           }
@@ -157,30 +158,9 @@ const addCrop = () => {
            type: "[Private]"+encryptedType,
          });
        }
-          const meta = await pinataService.uploadJSON(body);
-          console.log("Uploaded to Pinata", meta);
+        const meta = await pinataService.uploadJSON(body);
+        console.log("Uploaded to Pinata", meta);
   
-            const fetchedData = await fetch(meta.pinataUrl);
-            const data = await fetchedData.json();
-            if(privateCol) {
-              if (!password) {
-                throw new Error("Password is required for private collections");
-              }
-
-              let bytes = CryptoJS.AES.decrypt(data.name.replace("[Private]", ""), password);
-              let originalName = bytes.toString(CryptoJS.enc.Utf8);
-              bytes  = CryptoJS.AES.decrypt(data.description.replace("[Private]", ""), password);
-              let originalDescription = bytes.toString(CryptoJS.enc.Utf8);
-              bytes  = CryptoJS.AES.decrypt(data.image.replace("[Private]", ""), password);
-              let originalImage = bytes.toString(CryptoJS.enc.Utf8);
-              bytes  = CryptoJS.AES.decrypt(data.type.replace("[Private]", ""), password);
-              let originalType = bytes.toString(CryptoJS.enc.Utf8);
-    
-              console.log("Decrypted name", originalName);
-              console.log("Decrypted description", originalDescription);
-              console.log("Decrypted image", originalImage);
-              console.log("Decrypted type", originalType);
-            }
             const wsProvider = new WsProvider(process.env.EXPO_PUBLIC_WS_ENDPOINT);
             const api = await ApiPromise.create({ provider: wsProvider });
 
@@ -202,7 +182,6 @@ const addCrop = () => {
               } catch (error) {
                 console.log("Error getting NFT id", error);
               }
-
             const create = api.tx.nfts.mint(fieldCollectionId,nextItemId, AgriDotSigner.address, null);
             const assignMetadata = api.tx.nfts.setMetadata(fieldCollectionId,nextItemId, "ipfs://"+meta.ipfsHash);
 
@@ -212,7 +191,7 @@ const addCrop = () => {
             ];
 
             const batchAllTx = api.tx.utility.batchAll(calls);
-
+            console.log(body);
             await new Promise((resolve, reject) => {
               batchAllTx.signAndSend(AgriDotSigner, async ({ status, dispatchError }) => {
                 if (status.isFinalized) {
@@ -226,6 +205,7 @@ const addCrop = () => {
                     }
                   } else {
                     console.log("Crop created");
+                    setTimeout(() => {}, 10000);
                     setShowCreatingdModal(false);
                     setShowSuccesfuldModal(true);
                   }
@@ -239,11 +219,11 @@ const addCrop = () => {
 
   };
 
-  const handleReturn = (fieldID: string) => {
+  const handleReturn = (fieldID: string, isPrivate: string) => {
     setShowSuccesfuldModal(false);
     router.push({
       pathname: '/(app)/(field)/detailField',
-      params: { fieldID }
+      params: { fieldID, isPrivate }
     });
   };
 
@@ -332,7 +312,7 @@ const addCrop = () => {
               <View style={{paddingLeft: 10, paddingRight: 10}}>
                 <CustomButton 
                   title="Close and go to my crops"
-                  onPress={() => {handleReturn(fieldID)}}
+                  onPress={() => {handleReturn(fieldID, isPrivate.toString())}}
                   containerStyles={{ height: 50,}}
                   textStyles={{ fontSize: 16 }}
                 />
