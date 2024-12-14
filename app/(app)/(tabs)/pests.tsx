@@ -1,8 +1,9 @@
 import { StyleSheet } from 'react-native'
-import React from 'react'
+import React, {useEffect} from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
+import { useRoute } from '@react-navigation/native';
 
 // Importing screens
 import MyPests from '@/app/(app)/(pests)/myPests';
@@ -11,6 +12,7 @@ import NearbyPests from '@/app/(app)/(pests)/nearbyPests';
 
 const pests = () => {
   const TopTab = createMaterialTopTabNavigator();
+  
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: 'white' }}>
       {/* Top tab navigation for "My Pests" and "Nearby Pests" */}

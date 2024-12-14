@@ -190,7 +190,7 @@ const addPest = () => {
         const feeText = batchAllTxFee.partialFee.toHuman().replace(/,/g, '');
         const feeNumber = Math.ceil(parseFloat(feeText) * 1.05).toString();
 
-        setFeeAmount(Number(feeNumber) / 1000000000);
+        setFeeAmount(Number(feeNumber) / 1000000000000);
 
         // Wait for user approval to send the fee
         const userApproval = await waitForApproval();
@@ -339,7 +339,7 @@ const addPest = () => {
             <View style={styles.modalContent}>
 
               <Text style={styles.modalTitle}>Approval to send the fee for creating a pest</Text>
-              <Text style={styles.modalText}>You are about to send {feeAmount} DOT to create a pest</Text>
+              <Text style={styles.modalText}>You are about to send {feeAmount} KSM to create a pest</Text>
 
               <View style={{paddingLeft: 10, paddingRight: 10}}>
               <CustomButton 
