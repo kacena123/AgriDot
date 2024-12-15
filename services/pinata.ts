@@ -1,3 +1,4 @@
+// Code inspired from: https://github.com/PinataCloud/pinata-expo-template
 import axios from "axios";
 import FormData from "form-data";
 import { Platform } from "react-native";
