@@ -1,10 +1,21 @@
 import React from 'react';
-import { render, fireEvent, waitFor } from '@testing-library/react-native';
+import { render } from '@testing-library/react-native';
 import AddCrop from './addCrop'; // Adjust the path based on the file location
-import * as ImagePicker from 'expo-image-picker';
-import { SecureStorage } from '@/services/secureStorage';
-import { pinataService } from '@/services/pinata';
 
+jest.mock('expo-router', () => ({
+  router: {
+    push: jest.fn(),
+    back: jest.fn(),
+  },
+}));
+
+jest.mock('@react-navigation/native', () => ({
+  useRoute: () => ({
+    params: {
+      isPrivate: false
+    }
+  })
+}));
 jest.mock('expo-image-picker', () => ({
   requestMediaLibraryPermissionsAsync: jest.fn().mockResolvedValue({ status: 'granted' }),
   launchImageLibraryAsync: jest.fn(),

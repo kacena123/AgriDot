@@ -2,8 +2,6 @@ import React from 'react';
 import { render, fireEvent, waitFor } from '@testing-library/react-native';
 import AddField from './addField'; // Adjust the path based on the file location
 import * as ImagePicker from 'expo-image-picker';
-import { SecureStorage } from '@/services/secureStorage';
-import { pinataService } from '@/services/pinata';
 
 jest.mock('expo-image-picker', () => ({
     requestMediaLibraryPermissionsAsync: jest.fn().mockResolvedValue({ status: 'granted' }),
