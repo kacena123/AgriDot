@@ -1,8 +1,8 @@
-import { Redirect, Stack } from 'expo-router';
+import { Redirect, Stack, useRouter } from 'expo-router';
 import { Text } from 'react-native';
+import { HeaderBackButton } from '@react-navigation/elements';
 import React from 'react';
 import { useFonts } from 'expo-font';
-import LogInScreen from '@/app/login';
 
 import { useSession } from '@/context/ctx';
 
@@ -19,24 +19,20 @@ export default function AppLayout() {
   
 
   const { session, isLoading } = useSession();
+  const router = useRouter();
 
-  // You can keep the splash screen open, or render a loading screen like we do here.
   if (isLoading) {
     return <Text>Loading...</Text>;
   }
 
-  // Only require authentication within the (app) group's layout as users
-  // need to be able to access the (auth) group and sign in again.
   if (!session) {
-    // On web, static rendering will stop here as the user is not authenticated
-    // in the headless Node process that the pages are rendered in.
     return <Redirect href="/login" />;
   }
 
   // If authenticated, allow access to the protected routes.
   return (
     <Stack>
-      {/* Protected routes go here */}
+      {/* Protected routes */}
 
       <Stack.Screen 
         name="index" 
@@ -63,7 +59,9 @@ export default function AppLayout() {
         {/* Detail field */}
         <Stack.Screen 
           name="(field)/detailField" 
-          options={{ headerShown: true, title: 'Detail Field', 
+          options={{
+            headerShown: true, 
+            title: 'Detail Field', 
             headerStyle: {
               backgroundColor: '#145E2F',
             },

@@ -80,7 +80,8 @@
     "react-native-view-shot": "4.0.3",
     "react-native-web": "~0.19.13",
     "react-native-webview": "13.12.5",
-    "text-encoding": "^0.7.0"
+    "text-encoding": "^0.7.0",
+    "@react-native-community/slider": "4.5.5"
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",
