@@ -23,6 +23,7 @@ const profile = () => {
   const [showPasswordModal, setShowPasswordModal] = useState(false);
   const [showChangePasswordModal, setShowChangePasswordModal] = useState(false);
   const [showChangePasswordModalSuccess, setShowChangePasswordModalSuccess] = useState(false);
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
 
   const [newPassword, setNewPassword] = useState('');
   const [oldPassword, setOldPassword] = useState('');
@@ -167,10 +168,7 @@ const profile = () => {
                 <CustomButton 
                   title='Log out' 
                   onPress={() => {
-                    console.log('logout');
-                    SecureStorage.removeSecretPassword();
-                    SecureStorage.removeSecretPhrase();
-                    signOut();
+                    setShowLogoutModal(true)
                   }} 
                   containerStyles={{ backgroundColor: '#145E2F', height: 55, marginTop: 10, marginBottom: 20 }}
                   textStyles={{ fontSize: 18, fontFamily: 'DMSans' }}
@@ -407,6 +405,55 @@ const profile = () => {
                   onPress={() => setShowChangePasswordModalSuccess(false)}
                   containerStyles={{ height: 50,}}
                   textStyles={{ fontSize: 18 }}
+                />
+              </View>
+            </View>
+          </View>
+        </Modal>
+
+        {/* Logout Modal */}
+        <Modal
+          visible={showLogoutModal}
+          transparent={true}
+          animationType="fade"
+        >
+          <View style={styles.modalOverlay}>
+            <View style={styles.modalContent}>
+              
+              {/* Close button */}
+              <TouchableOpacity 
+                style={styles.closeButton}
+                onPress={() => setShowLogoutModal(false)}
+              >
+                <Text style={styles.closeButtonText}>×</Text>
+              </TouchableOpacity>
+
+              <Text style={styles.modalTitle}>Are you sure you want to log out?</Text>
+              <Text style={styles.modalText}>Your data and password will be deleted from your mobile phone.</Text>
+              
+              
+              {/* Close button */}
+              <View style={{paddingLeft: 50, paddingRight: 50}}>
+                <CustomButton 
+                  title="Close"
+                  onPress={() => setShowLogoutModal(false)}
+                  containerStyles={{ backgroundColor: '#145E2F', height: 50,}}
+                  textStyles={{ fontSize: 16 }}
+                />
+              </View>
+
+              {/* Logout button */}
+              <View style={{paddingLeft: 50, paddingRight: 50}}>
+                <CustomButton 
+                  title="Log out"
+                  onPress={() => {
+                    console.log('logout');
+                    SecureStorage.removeSecretPassword();
+                    SecureStorage.removeSecretPhrase();
+                    signOut();
+                  }} 
+                  containerStyles={{ height: 50 }}
+                  textStyles={{ fontSize: 16, fontFamily: 'DMSans' }}
                 />
               </View>
             </View>
